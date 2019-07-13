@@ -6,7 +6,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "nodemon src/start.js",
+    "start": "nodemon src/routes.js",
     "test": "jest -c jest.config.json",
     "docs": "node bin/generate-docs.js"
   },
@@ -16,7 +16,9 @@
     "dotenv": "^8.0.0",
     "escape-regex-string": "^1.0.6",
     "express": "^4.16.3",
-    "nedb": "^1.8.0"
+    "nedb": "^1.8.0",
+    "swagger-jsdoc": "^3.3.0",
+    "swagger-ui-express": "^4.0.7"
   },
   "devDependencies": {
     "array-flatten": "^2.1.1",
