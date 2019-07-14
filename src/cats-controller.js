@@ -20,16 +20,30 @@ function searchCatByName(req, res, next) {
  *   ]
  * }
  */
-function addCats(req, res, next) {
-  catsStorage.addCats(req.body.cats)
 
-  // const needle = req.body.needle
+function addCats(req, res) {
+  const { cats } = req.body
 
-  // if (isValidNeedle(needle, next)) {
-  //   namesDb.createNewName(needle, function(insertedName) {
-  //     res.json(insertedName)
-  //   })
-  // }
+  if (isEmpty(cats)) {
+    return res.status(400).json(boom.badRequest('cats is absent'))
+  }
+
+  for (let i = 0; i < cats.length; i++) {
+    if (isEmpty(cats[i].name)) {
+      return res.status(400).json(boom.badRequest('cat name is absent'))
+    }
+  }
+
+  catsStorage
+    .addCats(cats)
+    .then(storedCats =>
+      res.json({
+        cats: storedCats,
+      })
+    )
+    .catch(err =>
+      res.status(500).json(boom.internal('unable to save cats', err))
+    )
 }
 
 function deleteCatByName(req, res) {
@@ -47,13 +61,8 @@ function getCatById(req, res) {
   // })
 }
 
-function isValidNeedle(needle, next) {
-  if (needle == null || needle.length == 0) {
-    next(boom.badRequest('needle is empty'))
-    return false
-  }
-
-  return true
+function isEmpty(value) {
+  return value == null || value.length == 0
 }
 
 module.exports = {

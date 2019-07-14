@@ -1,0 +1,12 @@
+version: '3.7'
+services:
+  pg:
+    image: postgres:11.4-alpine
+    ports: 
+      - 5432:5432
+    volumes:
+      - ./.data/pg:/var/lib/postgresql/data
+    environment: 
+      POSTGRES_PASSWORD: cats
+      POSTGRES_USER: cats  
+      POSTGRES_DB: cats

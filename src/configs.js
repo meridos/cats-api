@@ -17,7 +17,13 @@ if (configLoadResult.error) {
 }
 
 const serverPort = process.env.NODE_PORT
+const pgUser = process.env.POSTGRES_USER
+const pgPass = process.env.POSTGRES_PASSWORD
+const pgDb = process.env.POSTGRES_DB
 
 module.exports = {
   serverPort,
+  pgUser,
+  pgPass,
+  pgDb
 }
