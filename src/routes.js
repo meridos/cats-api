@@ -3,12 +3,12 @@ const bodyParser = require('body-parser')
 const swaggerUi = require('swagger-ui-express')
 
 const {
-  addCatByName,
+  addCats,
   deleteCatByName,
   getCatById,
   searchCatByName,
 } = require('./cats-controller')
-const { getSwaggerDefinition, swaggerSpec } = require('./swagger-controller')
+const { swaggerSpec } = require('./swagger-controller')
 const { serverPort } = require('./configs')
 
 const app = express()
@@ -31,12 +31,10 @@ app.use(bodyParser.json())
  *       200:
  *         description: login
  */
-app.post('/cats/create-new', addCatByName)
+app.post('/cats/add', addCats)
 app.get('/cats/get-by-id', getCatById)
 app.get('/cats/search-by-name', searchCatByName)
 app.delete('/cats/delete-by-name', deleteCatByName)
-
-app.get('/api-docs', getSwaggerDefinition)
 
 app.use('/api-docs-ui', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 

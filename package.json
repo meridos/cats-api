@@ -17,6 +17,7 @@
     "escape-regex-string": "^1.0.6",
     "express": "^4.16.3",
     "nedb": "^1.8.0",
+    "pg": "^7.11.0",
     "swagger-jsdoc": "^3.3.0",
     "swagger-ui-express": "^4.0.7"
   },

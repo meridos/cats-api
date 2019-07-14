@@ -1,8 +1,8 @@
 const boom = require('boom')
+const catsStorage = require('./cats-storage')
 
 function searchCatByName(req, res, next) {
   // const needle = req.body.needle
-
   // if (isValidNeedle(needle, next)) {
   //   namesDb.searchNames(req.body.needle, function(namesFound) {
   //     res.json(namesDb.groupNamesAndSort(namesFound))
@@ -10,7 +10,19 @@ function searchCatByName(req, res, next) {
   // }
 }
 
-function addCatByName(req, res, next) {
+/**
+ * {
+ *   "cats": [
+ *      {
+ *         "name": "some cat",
+ *         "description": "my awesome cat" <- optional
+ *      }
+ *   ]
+ * }
+ */
+function addCats(req, res, next) {
+  catsStorage.addCats(req.body.cats)
+
   // const needle = req.body.needle
 
   // if (isValidNeedle(needle, next)) {
@@ -46,7 +58,7 @@ function isValidNeedle(needle, next) {
 
 module.exports = {
   searchCatByName,
-  addCatByName,
+  addCats,
   deleteCatByName,
   getCatById,
 }

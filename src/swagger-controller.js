@@ -13,12 +13,6 @@ const options = {
 
 const swaggerSpec = swaggerJSDoc(options)
 
-function getSwaggerDefinition(req, res) {
-  res.setHeader('Content-Type', 'application/json')
-  res.send(swaggerSpec)
-}
-
 module.exports = {
-  getSwaggerDefinition,
   swaggerSpec,
 }
