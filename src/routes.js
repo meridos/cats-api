@@ -6,7 +6,8 @@ const {
   addCats,
   deleteCatByName,
   getCatById,
-  searchCatByName,
+  searchCatsByName,
+  saveCatDescription,
 } = require('./cats-controller')
 const { swaggerSpec } = require('./swagger-controller')
 const { serverPort } = require('./configs')
@@ -33,8 +34,9 @@ app.use(bodyParser.json())
  */
 app.post('/cats/add', addCats)
 app.get('/cats/get-by-id', getCatById)
-app.get('/cats/search-by-name', searchCatByName)
+app.post('/cats/search', searchCatsByName)
 app.delete('/cats/delete-by-name', deleteCatByName)
+app.post('/cats/save-description', saveCatDescription)
 
 app.use('/api-docs-ui', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
