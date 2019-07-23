@@ -1,10 +1,11 @@
 const { Pool } = require('pg')
-const { pgUser, pgPass, pgDb } = require('./configs.js')
+const { pgUser, pgPass, pgDb, pgHost } = require('./configs.js')
 
 const pool = new Pool({
   user: pgUser,
   database: pgDb,
   password: pgPass,
+  host: pgHost,
 })
 
 pool.on('error', err => {

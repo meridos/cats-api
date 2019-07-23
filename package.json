@@ -7,6 +7,7 @@
   "private": true,
   "scripts": {
     "start:local": "cross-env NODE_ENV=local nodemon src/routes.js",
+    "start": "nodemon src/routes.js",
     "test": "jest -c jest.config.json",
     "docs": "node bin/generate-docs.js"
   },

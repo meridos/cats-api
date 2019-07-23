@@ -1,4 +1,4 @@
-# Search cat names
+# API app
 
 ## Setup DB
 
@@ -15,13 +15,4 @@ CREATE TABLE Cats (
     tags TEXT[],
     CONSTRAINT unique_name UNIQUE(name)
 );
-```
-
-## E2E tests
-
-```bash
-> yarn selenium-standalone install
-> yarn selenium-standalone start
-> yarn start
-> yarn codeceptjs run --steps --debug --verbose
 ```

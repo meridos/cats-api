@@ -1,0 +1,13 @@
+#!/bin/bash
+echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+docker push "nasyalnik/cats-api:travis-$TRAVIS_BUILD_NUMBER"
+ssh -i ./deploy_key "$PRODUCTION_USER@$PRODUCTION_SERVER" << EOF
+    (docker rm -f cats-api) || true
+    docker run -d \
+        --name cats-api \
+        --network meowle \
+        --restart always \
+        -e NODE_ENV=production \
+        -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
+        "nasyalnik/cats-api:travis-$TRAVIS_BUILD_NUMBER"
+EOF
