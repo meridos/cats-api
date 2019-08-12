@@ -3,11 +3,10 @@ const catsStorage = require('./cats-storage')
 
 function searchCatsByName(req, res) {
   const { name } = req.body
-
   console.log(`searching for cats with name like ${name}`)
 
-  return catsStorage
-    .findCatsByName(name)
+  return validateName(name)
+    .then(() => catsStorage.findCatsByName(name))
     .then(foundCats => res.json(groupNamesAndSort(foundCats)))
     .catch(err =>
       res.status(500).json(boom.internal('unable to find cats', err))
@@ -177,11 +176,30 @@ function capitalizeFirstLetter(string) {
 
 function getCatValidationRules(req, res) {
   return catsStorage
-  .findCatsValidationRules()
-  .then(foundRules => res.json(foundRules))
-  .catch(err =>
-    res.status(500).json(boom.internal('unable to find cats validation rules', err))
-  )
+    .findCatsValidationRules()
+    .then(foundRules => res.json(foundRules))
+    .catch(err =>
+      res
+        .status(500)
+        .json(boom.internal('unable to find cats validation rules', err))
+    )
+}
+
+function validateName(name) {
+  return catsStorage.findCatsValidationRules().then(validationRules => {
+    for (let i = 0; i < validationRules.length; i++) {
+      const { description, regex } = validationRules[i]
+      const validationRegex = new RegExp(regex)
+
+      const isValid = name.search(validationRegex) > -1
+      if (!isValid) {
+        console.error(description)
+        throw new Error(description)
+      }
+    }
+
+    return null
+  })
 }
 
 module.exports = {
