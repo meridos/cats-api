@@ -65,9 +65,16 @@ function saveCatDescription(catId, catDescription) {
     })
 }
 
+function findCatsValidationRules() {
+  return pool
+    .query('SELECT * FROM Cats_Validations')
+    .then(selectResult => selectResult.rows)
+}
+
 module.exports = {
   addCats,
   findCatsByName,
   findCatById,
   saveCatDescription,
+  findCatsValidationRules
 }

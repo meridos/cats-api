@@ -94,64 +94,63 @@ function isEmpty(value) {
   return value == null || value.length == 0
 }
 
-
 function groupNamesAndSort(cats) {
-  const groups = groupByFirstLetter(cats);
-  const sorterGroup = sortGroupAlphabetically(groups);
-  const count = countNames(sorterGroup);
+  const groups = groupByFirstLetter(cats)
+  const sorterGroup = sortGroupAlphabetically(groups)
+  const count = countNames(sorterGroup)
 
   return {
     groups: sorterGroup,
-    count
-  };
+    count,
+  }
 }
 
 function groupByFirstLetter(cats) {
-  const groups = {};
+  const groups = {}
 
   for (let i = 0; i < cats.length; i++) {
-    const cat = cats[i];
-    const name = capitalizeFirstLetter(cat.name);
-    const title = name.charAt(0);
+    const cat = cats[i]
+    const name = capitalizeFirstLetter(cat.name)
+    const title = name.charAt(0)
 
     if (groups[title] == null) {
-      groups[title] = [cat];
+      groups[title] = [cat]
     } else {
-      groups[title].push(cat);
+      groups[title].push(cat)
     }
   }
 
-  return groups;
+  return groups
 }
 
 function sortGroupAlphabetically(groups) {
-  const keysSortedAlphabetically = Array.from(Object.keys(groups)).sort();
-  const sorterGroup = [];
+  const keysSortedAlphabetically = Array.from(Object.keys(groups)).sort()
+  const sorterGroup = []
 
   for (let i = 0; i < keysSortedAlphabetically.length; i++) {
-    const key = keysSortedAlphabetically[i];
+    const key = keysSortedAlphabetically[i]
     const group = {
       title: key,
       cats: groups[key], //.sort()
-    };
-    sorterGroup.push(group);
+    }
+    sorterGroup.push(group)
   }
 
-  return sorterGroup;
+  return sorterGroup
 }
 
 function countNames(groups) {
-  let count = 0;
+  let count = 0
   for (let i = 0; i < groups.length; i++) {
-    const group = groups[i];
-    group["count"] = group.cats.length;
-    count = count + group.count;
+    const group = groups[i]
+    group['count'] = group.cats.length
+    count = count + group.count
   }
-  return count;
+  return count
 }
 
 function capitalizeFirstLetter(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
+  return string.charAt(0).toUpperCase() + string.slice(1)
 }
 
 // function trimSymbols(name) {
@@ -176,10 +175,20 @@ function capitalizeFirstLetter(string) {
 //   return name.substring(startIndex, endIndex + 1);
 // }
 
+function getCatValidationRules(req, res) {
+  return catsStorage
+  .findCatsValidationRules()
+  .then(foundRules => res.json(foundRules))
+  .catch(err =>
+    res.status(500).json(boom.internal('unable to find cats validation rules', err))
+  )
+}
+
 module.exports = {
   searchCatsByName,
   addCats,
   deleteCatByName,
   getCatById,
   saveCatDescription,
+  getCatValidationRules,
 }

@@ -17,4 +17,9 @@ CREATE TABLE Cats (
     tags TEXT[],
     CONSTRAINT unique_name UNIQUE(name)
 );
+CREATE TABLE Cats_Validations (
+    id SERIAL PRIMARY KEY,
+    description TEXT NOT NULL,
+    regex TEXT NOT NULL
+);
 ```
