@@ -6,6 +6,7 @@ const {
   addCats,
   deleteCatByName,
   getCatById,
+  getCatsByGender,
   searchCatsByName,
   saveCatDescription,
   getCatValidationRules,
@@ -35,6 +36,7 @@ app.use(bodyParser.json())
  */
 app.post('/cats/add', addCats)
 app.get('/cats/get-by-id', getCatById)
+app.get('/cats/get-by-gender', getCatsByGender)
 app.post('/cats/search', searchCatsByName)
 app.delete('/cats/delete-by-name', deleteCatByName)
 app.post('/cats/save-description', saveCatDescription)
