@@ -89,6 +89,26 @@ function getCatById(req, res) {
     )
 }
 
+function getCatsByGender(req, res) {
+  const { gender } = req.query
+  if (isEmpty(gender)) {
+    return res.status(400).json(boom.badRequest('cat gender is absent'))
+  }
+
+  catsStorage
+    .findCatsByGender(gender)
+    .then(catFound => {
+      if (catFound == null) {
+        return res.status(404).json(boom.notFound('cat not found'))
+      }
+
+      return res.json({ cat: catFound })
+    })
+    .catch(err =>
+      res.status(500).json(boom.internal('unable to find cat', err))
+    )
+}
+
 function isEmpty(value) {
   return value == null || value.length == 0
 }
@@ -207,6 +227,7 @@ module.exports = {
   addCats,
   deleteCatByName,
   getCatById,
+  getCatsByGender,
   saveCatDescription,
   getCatValidationRules,
 }
