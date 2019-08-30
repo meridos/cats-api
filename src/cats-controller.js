@@ -13,6 +13,18 @@ function searchCatsByName(req, res) {
     )
 }
 
+function searchCatsByNamePattern(req, res) {
+  const { name } = req.query
+  console.log(`searching for cats with name like ${name}`)
+
+  return validateName(name)
+    .then(() => catsStorage.findCatByNamePattern(name))
+    .then(foundCats => res.json(foundCats))
+    .catch(err =>
+      res.status(500).json(boom.internal('unable to find cats', err))
+    )
+}
+
 function addCats(req, res) {
   const { cats } = req.body
 
@@ -224,6 +236,7 @@ function validateName(name) {
 
 module.exports = {
   searchCatsByName,
+  searchCatsByNamePattern,
   addCats,
   deleteCatByName,
   getCatById,

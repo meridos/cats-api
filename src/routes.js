@@ -8,6 +8,7 @@ const {
   getCatById,
   getCatsByGender,
   searchCatsByName,
+  searchCatsByNamePattern,
   saveCatDescription,
   getCatValidationRules,
 } = require('./cats-controller')
@@ -38,6 +39,7 @@ app.post('/cats/add', addCats)
 app.get('/cats/get-by-id', getCatById)
 app.get('/cats/get-by-gender', getCatsByGender)
 app.post('/cats/search', searchCatsByName)
+app.get('/cats/search-pattern', searchCatsByNamePattern)
 app.delete('/cats/delete-by-name', deleteCatByName)
 app.post('/cats/save-description', saveCatDescription)
 app.get('/cats/validation', getCatValidationRules)

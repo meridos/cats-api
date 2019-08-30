@@ -22,7 +22,7 @@ function addCats(cats) {
     const insert = pool
       .query(
         'INSERT INTO Cats(name, description, gender) VALUES ($1, $2, $3) RETURNING *',
-        [name, description, gender]
+        [name, description, gender],
       )
       .then(insertResult => insertResult.rows[0])
 
@@ -62,6 +62,18 @@ function findCatById(catId) {
     })
 }
 
+function findCatByNamePattern(catName) {
+  return pool
+    .query('SELECT * FROM Cats WHERE LOWER(name) LIKE LOWER ($1) ORDER BY id ASC LIMIT 20', [catName + '%'])
+    .then(selectResult => {
+      if (selectResult.rows.length == 0) {
+        return null
+      }
+
+      return selectResult.rows
+    })
+}
+
 function saveCatDescription(catId, catDescription) {
   return pool
     .query('UPDATE Cats SET description = $1 WHERE id = $2 RETURNING *', [
@@ -86,8 +98,9 @@ function findCatsValidationRules() {
 module.exports = {
   addCats,
   findCatsByName,
+  findCatByNamePattern,
   findCatById,
   findCatsByGender,
   saveCatDescription,
-  findCatsValidationRules
+  findCatsValidationRules,
 }
