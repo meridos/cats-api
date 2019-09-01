@@ -6,8 +6,7 @@ const {
   addCats,
   deleteCatByName,
   getCatById,
-  getCatsByGender,
-  searchCatsByName,
+  searchCatsByParams,
   searchCatsByNamePattern,
   saveCatDescription,
   getCatValidationRules,
@@ -18,12 +17,14 @@ const { serverPort } = require('./configs')
 const app = express()
 app.use(bodyParser.json())
 
+app.post('/cats/add', addCats)
+app.get('/cats/get-by-id', getCatById)
 /**
  * @swagger
  *
- * /cats/create-new:
- *   post:
- *     description: Добавление нового кота
+ * /cats/search:
+ *   get:
+ *     description: Поиск по имени и доп.характеристикам
  *     produces:
  *       - application/json
  *     parameters:
@@ -31,14 +32,15 @@ app.use(bodyParser.json())
  *         description: Имя кота
  *         required: true
  *         type: string
+ *       - name: genders
+ *         description: Список полов (м, ж, унисекс)
+ *         required: true
+ *         type: array
  *     responses:
  *       200:
  *         description: login
  */
-app.post('/cats/add', addCats)
-app.get('/cats/get-by-id', getCatById)
-app.get('/cats/get-by-gender', getCatsByGender)
-app.post('/cats/search', searchCatsByName)
+app.post('/cats/search', searchCatsByParams)
 app.get('/cats/search-pattern', searchCatsByNamePattern)
 app.delete('/cats/delete-by-name', deleteCatByName)
 app.post('/cats/save-description', saveCatDescription)
