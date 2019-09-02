@@ -1,18 +1,45 @@
 const boom = require('boom')
 const catsStorage = require('./cats-storage')
 
-function searchCatsByName(req, res) {
-  const { name } = req.body
-  console.log(`searching for cats with name like ${name}`)
+/**
+ * Получение и обработка поискового запроса по котам с клиента
+ * @param {*} req - параметры поискового запроса, переданные с клиента
+ * @param {*} res - список найденных (или нет) котов
+ */
+function searchCatsByParams(req, res) {
+  const searchParams = {
+    name: req.body.name,
+    genders: req.body.genders,
+  }
 
-  return validateName(name)
-    .then(() => catsStorage.findCatsByName(name))
+  console.log(
+    `searching for cats with name like ${searchParams.name} and ${searchParams.genders}`
+  )
+
+  return validateName(searchParams.name)
+    .then(() => catsStorage.findCatsByParams(searchParams))
     .then(foundCats => res.json(groupNamesAndSort(foundCats)))
     .catch(err =>
       res.status(500).json(boom.internal('unable to find cats', err))
     )
 }
 
+function searchCatsByNamePattern(req, res) {
+  const { name } = req.query
+  console.log(`searching for cats with name like ${name}`)
+
+  return validateName(name)
+    .then(() => catsStorage.findCatByNamePattern(name))
+    .then(foundCats => res.json(foundCats))
+    .catch(err =>
+      res.status(500).json(boom.internal('unable to find cats', err))
+    )
+}
+/**
+ * Добавление новых котов
+ * @param {*} req - параметры, пришедшие от клиента и содержащие информацию о новом коте (имя, пол)
+ * @param {*} res  - ответ, который отправляем клиенту после выполнения функции
+ */
 function addCats(req, res) {
   const { cats } = req.body
 
@@ -38,12 +65,6 @@ function addCats(req, res) {
     .catch(err =>
       res.status(500).json(boom.internal('unable to save cats', err))
     )
-}
-
-function deleteCatByName(req, res) {
-  // namesDb.deleteByName(req.body.needle, function() {
-  //   res.send('ok')
-  // })
 }
 
 function saveCatDescription(req, res) {
@@ -89,30 +110,13 @@ function getCatById(req, res) {
     )
 }
 
-function getCatsByGender(req, res) {
-  const { gender } = req.query
-  if (isEmpty(gender)) {
-    return res.status(400).json(boom.badRequest('cat gender is absent'))
-  }
-
-  catsStorage
-    .findCatsByGender(gender)
-    .then(catFound => {
-      if (catFound == null) {
-        return res.status(404).json(boom.notFound('cat not found'))
-      }
-
-      return res.json({ cat: catFound })
-    })
-    .catch(err =>
-      res.status(500).json(boom.internal('unable to find cat', err))
-    )
-}
-
 function isEmpty(value) {
   return value == null || value.length == 0
 }
-
+/**
+ * Группировка и сортировка полученных котов с характеристиками из БД
+ * @param {*} cats - список строк котов с характеристиками, которые возвращаются клиенту
+ */
 function groupNamesAndSort(cats) {
   const groups = groupByFirstLetter(cats)
   const sorterGroup = sortGroupAlphabetically(groups)
@@ -124,6 +128,10 @@ function groupNamesAndSort(cats) {
   }
 }
 
+/**
+ * Группировка котов (список объектов) по первой букве
+ * @param {*} cats - список объектов котов с характеристиками, которые возвращаются клиенту
+ */
 function groupByFirstLetter(cats) {
   const groups = {}
 
@@ -141,7 +149,10 @@ function groupByFirstLetter(cats) {
 
   return groups
 }
-
+/**
+ * Сортировка групп котов в алфавитном порядке
+ * @param {*} groups - мапа групп готов, содержит title и список объектов
+ */
 function sortGroupAlphabetically(groups) {
   const keysSortedAlphabetically = Array.from(Object.keys(groups)).sort()
   const sorterGroup = []
@@ -157,7 +168,10 @@ function sortGroupAlphabetically(groups) {
 
   return sorterGroup
 }
-
+/**
+ * Вычисление количества найденных имен в списке
+ * @param {*} groups - список групп с именами
+ */
 function countNames(groups) {
   let count = 0
   for (let i = 0; i < groups.length; i++) {
@@ -167,33 +181,18 @@ function countNames(groups) {
   }
   return count
 }
-
+/**
+ * Модификация записи имени кота в запись с большой буквы
+ * @param {*} string - имя кота
+ */
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1)
 }
-
-// function trimSymbols(name) {
-//   let startIndex = 0;
-//   for (let i = 0; i < name.length; i++) {
-//     const symbol = name[i];
-//     if (/[a-zA-Zа-яА-Я]/.test(symbol)) {
-//       startIndex = i;
-//       break;
-//     }
-//   }
-
-//   let endIndex = 0;
-//   for (let i = name.length - 1; i >= 0; i--) {
-//     const symbol = name[i];
-//     if (/[a-zA-Z1-9а-яА-Я]/.test(symbol)) {
-//       endIndex = i;
-//       break;
-//     }
-//   }
-
-//   return name.substring(startIndex, endIndex + 1);
-// }
-
+/**
+ * Получение правил валидации имен
+ * @param {*} req - запрос, отправляемый клиентом (содержит имя кота)
+ * @param {*} res - ответ, отправляемый клиенту в виде json списка с regex-правилами
+ */
 function getCatValidationRules(req, res) {
   return catsStorage
     .findCatsValidationRules()
@@ -205,6 +204,10 @@ function getCatValidationRules(req, res) {
     )
 }
 
+/**
+ * Валидация имени по regex-правилам, хранящимся в БД
+ * @param {*} name - имя кота, переданное в строке поиска
+ */
 function validateName(name) {
   return catsStorage.findCatsValidationRules().then(validationRules => {
     for (let i = 0; i < validationRules.length; i++) {
@@ -222,12 +225,14 @@ function validateName(name) {
   })
 }
 
+function deleteCatByName(req, res) {}
+
 module.exports = {
-  searchCatsByName,
+  searchCatsByParams,
+  searchCatsByNamePattern,
   addCats,
   deleteCatByName,
   getCatById,
-  getCatsByGender,
   saveCatDescription,
   getCatValidationRules,
 }

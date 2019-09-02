@@ -10,21 +10,15 @@
 ```
 
 ```sql
+CREATE TYPE gender AS ENUM ('male', 'female', 'unisex');
+
 CREATE TABLE Cats (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     description TEXT,
     tags TEXT[],
+    gender gender,
     CONSTRAINT unique_name UNIQUE(name)
-);
-CREATE TYPE gender AS ENUM (‘male’, ‘female’, ‘universal’);
-CREATE TABLE Cats (
-   id SERIAL PRIMARY KEY,
-   name TEXT NOT NULL,
-   description TEXT,
-   gender gender,
-   tags TEXT[],
-   CONSTRAINT unique_name UNIQUE(name)
 );
 CREATE TABLE Cats_Validations (
     id SERIAL PRIMARY KEY,
