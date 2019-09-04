@@ -22,7 +22,7 @@ function addCats(cats) {
     const insert = pool
       .query(
         'INSERT INTO Cats(name, description, gender) VALUES ($1, $2, $3) RETURNING *',
-        [name, description, gender]
+        [name, description, gender],
       )
       .then(insertResult => insertResult.rows[0])
 
@@ -49,7 +49,7 @@ function findCatsByParams(searchParams) {
     return pool
       .query(
         `SELECT * FROM Cats WHERE name ILIKE $1 AND gender IN (${whereIn})`,
-        [`%${catName}%`, ...catGenders]
+        [`%${catName}%`, ...catGenders],
       )
       .then(selectResult => selectResult.rows)
   }
@@ -67,11 +67,17 @@ function findCatById(catId) {
     })
 }
 
-function findCatByNamePattern(catName) {
+function findCatByNamePattern(catName, limit) {
+  limit = Number(limit)
+
+  const limitQuery = limit > 0
+    ? ` LIMIT ${limit}`
+    : '';
+
   return pool
     .query(
-      'SELECT * FROM Cats WHERE LOWER(name) LIKE LOWER ($1) ORDER BY id ASC LIMIT 20',
-      [catName + '%']
+      `SELECT * FROM Cats WHERE LOWER(name) LIKE LOWER ($1) ORDER BY id ASC${limitQuery}`,
+      [catName + '%'],
     )
     .then(selectResult => {
       if (selectResult.rows.length == 0) {
@@ -101,6 +107,7 @@ function saveCatDescription(catId, catDescription) {
       return updateResult.rows[0]
     })
 }
+
 /**
  * Поиск правил валидации в БД
  */
