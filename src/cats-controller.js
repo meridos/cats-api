@@ -25,11 +25,11 @@ function searchCatsByParams(req, res) {
 }
 
 function searchCatsByNamePattern(req, res) {
-  const { name } = req.query
+  const { name, limit = 20 } = req.query
   console.log(`searching for cats with name like ${name}`)
 
   return validateName(name)
-    .then(() => catsStorage.findCatByNamePattern(name))
+    .then(() => catsStorage.findCatByNamePattern(name, limit))
     .then(foundCats => res.json(foundCats))
     .catch(err =>
       res.status(500).json(boom.internal('unable to find cats', err))

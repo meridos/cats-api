@@ -67,11 +67,11 @@ function findCatById(catId) {
     })
 }
 
-function findCatByNamePattern(catName) {
+function findCatByNamePattern(catName, limit) {
   return pool
     .query(
-      'SELECT * FROM Cats WHERE LOWER(name) LIKE LOWER ($1) ORDER BY id ASC LIMIT 20',
-      [catName + '%']
+      'SELECT * FROM Cats WHERE LOWER(name) LIKE LOWER ($1) ORDER BY id ASC LIMIT $2',
+      [catName + '%', limit]
     )
     .then(selectResult => {
       if (selectResult.rows.length == 0) {
