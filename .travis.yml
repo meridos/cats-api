@@ -5,8 +5,7 @@ node_js:
 services:
 - docker
 before_install:
-- openssl aes-256-cbc -K $encrypted_fc4d1d3cedd0_key -iv $encrypted_fc4d1d3cedd0_iv
-  -in deploy_key.enc -out ./deploy_key -d
+- openssl aes-256-cbc -K $encrypted_fc4d1d3cedd0_key -iv $encrypted_fc4d1d3cedd0_iv -in deploy_key.enc -out ./deploy_key -d -verbose
 - eval "$(ssh-agent -s)"
 - chmod 600 ./deploy_key
 - ssh-add ./deploy_key
