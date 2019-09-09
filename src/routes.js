@@ -10,6 +10,7 @@ const {
   searchCatsByNamePattern,
   saveCatDescription,
   getCatValidationRules,
+  getAllCats
 } = require('./cats-controller')
 const { swaggerSpec } = require('./swagger-controller')
 const { serverPort } = require('./configs')
@@ -45,6 +46,7 @@ app.get('/cats/search-pattern', searchCatsByNamePattern)
 app.delete('/cats/delete-by-name', deleteCatByName)
 app.post('/cats/save-description', saveCatDescription)
 app.get('/cats/validation', getCatValidationRules)
+app.get('/cats/getall', getAllCats)
 app.use('/api-docs-ui', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
 app.listen(serverPort)
