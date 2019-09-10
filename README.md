@@ -31,4 +31,9 @@ INSERT INTO Cats_Validations (description, regex) VALUES
   ('Цифры не принимаются!', '^\D*$'),
   ('Только имена на русском!', '^[а-яА-Я\s-]*$'),
   ('Из спецсимволов можно только тире и только посередине имени', '^([\d\wа-яА-Я]+|[\d\wа-яА-Я]+[-\s]|[\d\wа-яА-Я]+[-\s][\d\wа-яА-Я]+)$');
+
+-- Feature 2: Add likes names
+ALTER TABLE Cats
+    ADD COLUMN likes SMALLINT NOT NULL DEFAULT 0
+    CONSTRAINT likes_positive CHECK (likes >= 0);
 ```
