@@ -35,8 +35,8 @@ INSERT INTO Cats_Validations (description, regex) VALUES
 -- Feature 8 upload images:
 CREATE TABLE images (
     id SERIAL PRIMARY KEY,
-    link TEXT,
-    id_cat INT
+    link TEXT NOT NULL,
+    id_cat INT NOT NULL
   constraint images_cats__fk
    references cats ("id")
     on delete cascade
