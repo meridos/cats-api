@@ -2,6 +2,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const swaggerUi = require('swagger-ui-express')
 
+
 const {
   addCats,
   deleteCatByName,
@@ -10,9 +11,11 @@ const {
   searchCatsByNamePattern,
   saveCatDescription,
   getCatValidationRules,
+  uploadCatImage,
 } = require('./cats-controller')
 const { swaggerSpec } = require('./swagger-controller')
 const { serverPort } = require('./configs')
+const { upload } = require('./multer')
 
 const app = express()
 app.use(bodyParser.json())
@@ -46,5 +49,7 @@ app.delete('/cats/delete-by-name', deleteCatByName)
 app.post('/cats/save-description', saveCatDescription)
 app.get('/cats/validation', getCatValidationRules)
 app.use('/api-docs-ui', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+app.post('/cats/:id/upload', upload.single('file'), uploadCatImage)
 
 app.listen(serverPort)
+
