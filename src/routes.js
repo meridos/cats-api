@@ -46,7 +46,19 @@ app.get('/cats/search-pattern', searchCatsByNamePattern)
 app.delete('/cats/delete-by-name', deleteCatByName)
 app.post('/cats/save-description', saveCatDescription)
 app.get('/cats/validation', getCatValidationRules)
-app.get('/cats/getall', getAllCats)
+app.get('/cats/all', getAllCats)
+/**
+ * @swagger
+ *
+ * /cats/all:
+ *   get:
+ *     description: Возврат всех имеющихся котов
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: OK
+ */
 app.use('/api-docs-ui', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
 app.listen(serverPort)

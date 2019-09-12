@@ -33,7 +33,7 @@ function getAllCats(req, res) {
       res.json(groupNamesAndSort(storedCats))
     )
     .catch(err =>
-      res.status(500).json(boom.internal('unable to save cats', err))
+      res.status(500).json(boom.internal('unable to get all cats', err))
     )
 
 }
