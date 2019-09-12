@@ -240,17 +240,22 @@ function deleteCatByName(req, res) {
 function uploadCatImage(req, res, next) {
   console.log(req.file)
   if (!req.file) {
-    res.status(500)
+    res.status(400).json(boom.internal('file is required', err))
     return next(err)
   }
 
   catsStorage
     .uploadCatImage(req.file.filename, req.params.id)
+    .then(storedImages =>
+      res.json({
+        images: storedImages,
+      }),
+    )
     .catch(err =>
-      res.status(500).json(boom.internal('unable to upload image', err)),
+      res.status(500).json(boom.internal('unable to insert db', err)),
     )
 
-  res.json({ fileUrl: 'localhost:3001/images/' + req.file.filename })
+  res.json({ fileUrl: '/images/' + req.file.filename })
 }
 
 module.exports = {

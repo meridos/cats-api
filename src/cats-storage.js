@@ -115,10 +115,16 @@ function findCatsValidationRules() {
  * Добавление изображения в БД
  */
 function uploadCatImage(image_link, cat_id) {
-  return pool
+  const inserts = []
+
+  const insert = pool
     .query(
       'INSERT INTO Images (link, id_cat) VALUES ($1, $2) RETURNING *', [image_link, cat_id])
     .then(insertResult => insertResult.rows[0])
+
+    inserts.push(insert)
+
+  return Promise.all(inserts)
 }
 
 module.exports = {
