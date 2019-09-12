@@ -25,4 +25,20 @@ CREATE TABLE Cats_Validations (
     description TEXT NOT NULL,
     regex TEXT NOT NULL
 );
+
+-- Add name validation rules:
+INSERT INTO Cats_Validations (description, regex) VALUES
+  ('Цифры не принимаются!', '^\D*$'),
+  ('Только имена на русском!', '^[а-яА-Я\s-]*$'),
+  ('Из спецсимволов можно только тире и только посередине имени', '^([\d\wа-яА-Я]+|[\d\wа-яА-Я]+[-\s]|[\d\wа-яА-Я]+[-\s][\d\wа-яА-Я]+)$');
+  
+-- Feature 8 upload images:
+CREATE TABLE images (
+    id SERIAL PRIMARY KEY,
+    link VARCHAR NOT NULL,
+    id_cat INT NOT NULL
+  constraint images_cats__fk
+   references cats ("id")
+    on delete cascade
+);
 ```
