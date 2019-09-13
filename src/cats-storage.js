@@ -33,6 +33,16 @@ function addCats(cats) {
 }
 
 /**
+ * Возвращаем всех котов
+ */
+function allCats() {
+  return pool
+    .query('SELECT * FROM Cats')
+    .then(selectResult => selectResult.rows)
+}
+
+
+/**
  * Поиск котов по указанным параметрам в БД
  * @param {*} searchParams - список параметров для поиска, переданные от клиента (имя, пол (м,ж, унисекс))
  */
@@ -157,4 +167,5 @@ module.exports = {
   findCatsValidationRules,
   uploadCatImage,
   getCatImage,
+  allCats
 }
