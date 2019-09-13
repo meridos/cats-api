@@ -133,6 +133,21 @@ function uploadCatImage(image_link, cat_id) {
   return Promise.all(inserts)
 }
 
+/**
+ * Получение изображений кота
+ */
+function getCatImage(imageId) {
+  return pool
+    .query('SELECT * FROM Images WHERE id_cat = $1', [imageId])
+    .then(selectResult => {
+      if (selectResult.rows.length == 0) {
+        return null
+      }
+
+      return selectResult.rows
+    })
+}
+
 module.exports = {
   addCats,
   findCatsByParams,
@@ -141,4 +156,5 @@ module.exports = {
   saveCatDescription,
   findCatsValidationRules,
   uploadCatImage,
+  getCatImage,
 }

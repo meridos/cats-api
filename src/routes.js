@@ -12,6 +12,7 @@ const {
   saveCatDescription,
   getCatValidationRules,
   uploadCatImage,
+  getImageById
 } = require('./cats-controller')
 const { swaggerSpec } = require('./swagger-controller')
 const { serverPort } = require('./configs')
@@ -142,36 +143,8 @@ app.delete('/cats/delete-by-name', deleteCatByName)
 app.post('/cats/save-description', saveCatDescription)
 app.get('/cats/validation', getCatValidationRules)
 app.use('/api-docs-ui', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
-/**
- * @swagger
- *
- * /cats/:id/upload:
- *   post:
- *     description: Добавление изображения кота
- *     parameters:
- *       - in: query
- *         name: id
- *         schema:
- *           type: integer
- *         required: true
- *         description: Id кота
- *       - in: formData
- *         name: image
- *         schema:
- *           type: file
- *         description: Изображение кота
- *     responses:
- *       200:
- *         description: Имя загруженного изображения
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 fileUrl:
- *                   type: string
- */
+
 app.post('/cats/:id/upload', upload.single('file'), uploadCatImage)
+app.get('/cats/:catId/photos', getImageById)
 
 app.listen(serverPort)
-

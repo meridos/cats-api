@@ -258,6 +258,27 @@ function uploadCatImage(req, res, next) {
   res.json({ fileUrl: '/images/' + req.file.filename })
 }
 
+function  getImageById(req, res) {
+  const catId  = req.params.catId;
+
+  if (isEmpty(catId)) {
+    return res.status(400).json(boom.badRequest('image id is absent'))
+  }
+
+  catsStorage
+    .getCatImage(catId)
+    .then(imageFound => {
+      if (imageFound == null) {
+        return res.status(404).json(boom.notFound('image not found'))
+      }
+
+      return res.json({ images: imageFound })
+    })
+    .catch(err =>
+      res.status(500).json(boom.internal('unable to find image', err)),
+    )
+}
+
 module.exports = {
   searchCatsByParams,
   searchCatsByNamePattern,
@@ -267,4 +288,5 @@ module.exports = {
   saveCatDescription,
   getCatValidationRules,
   uploadCatImage,
+  getImageById,
 }

@@ -6,7 +6,6 @@ var storage = multer.diskStorage({
     cb(null, './public/images')
   },
   filename: (req, file, cb) => {
-    console.log(file)
     var filetype = ''
 
     if (file.mimetype === 'image/png') {
@@ -25,7 +24,7 @@ var storage = multer.diskStorage({
 var upload = multer({
   storage: storage,
     limits: {
-    fileSize: 5e+6,
+    fileSize: 5 * 1024 * 1024,
   }
 })
 
