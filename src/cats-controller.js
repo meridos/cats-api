@@ -24,6 +24,20 @@ function searchCatsByParams(req, res) {
     )
 }
 
+function getAllCats(req, res) {
+  console.log(`getting all cats`)
+
+  catsStorage
+    .allCats()
+    .then(storedCats =>
+      res.json(groupNamesAndSort(storedCats))
+    )
+    .catch(err =>
+      res.status(500).json(boom.internal('unable to get all cats', err))
+    )
+
+}
+
 function searchCatsByNamePattern(req, res) {
   const { name, limit } = req.query
   console.log(`searching for cats with name like ${name} limit ${limit}`)
@@ -235,4 +249,5 @@ module.exports = {
   getCatById,
   saveCatDescription,
   getCatValidationRules,
+  getAllCats
 }
