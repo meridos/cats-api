@@ -13,6 +13,7 @@ const {
   getCatValidationRules,
   uploadCatImage,
   getCatImages,
+  getAllCats
 } = require('./cats-controller')
 const { swaggerSpec } = require('./swagger-controller')
 const { serverPort } = require('./configs')
@@ -142,6 +143,35 @@ app.get('/cats/search-pattern', searchCatsByNamePattern)
 app.delete('/cats/delete-by-name', deleteCatByName)
 app.post('/cats/save-description', saveCatDescription)
 app.get('/cats/validation', getCatValidationRules)
+app.get('/cats/all', getAllCats)
+
+/**
+ * @swagger
+ *
+ * /cats/all:
+ *   get:
+ *     description: Вывод списка всех котов
+ *     responses:
+ *       200:
+ *         description: список имен
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: number
+ *                 name:
+ *                   type: string
+ *                 description:
+ *                   type: string
+ *                 tags:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                 gender:
+ *                   $ref: '#/definitions/GenderEnum'
+ */
 app.use('/api-docs-ui', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 /**
  * @swagger
