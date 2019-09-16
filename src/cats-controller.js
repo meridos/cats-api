@@ -260,10 +260,7 @@ function uploadCatImage(req, res, next) {
 
   catsStorage
     .uploadCatImage(req.file.filename, req.params.id)
-    .then(storedImages =>
-      res.json({
-        images: storedImages,
-      }),
+    .then(res.json({ fileUrl: '/images/' + req.file.filename })
     )
     .catch(err =>
       res.status(500).json(boom.internal('unable to insert db', err)),
@@ -272,7 +269,7 @@ function uploadCatImage(req, res, next) {
   res.json({ fileUrl: '/images/' + req.file.filename })
 }
 
-function  getImageById(req, res) {
+function getCatImages(req, res) {
   const catId  = req.params.catId;
 
   if (isEmpty(catId)) {
@@ -280,13 +277,11 @@ function  getImageById(req, res) {
   }
 
   catsStorage
-    .getCatImage(catId)
+    .getCatImages(catId)
     .then(imageFound => {
-      if (imageFound == null) {
-        return res.status(404).json(boom.notFound('image not found'))
-      }
+      const images = (imageFound || []).map(obj => '/photos/' + obj.link)
 
-      return res.json({ images: imageFound })
+      return res.json({ images: images })
     })
     .catch(err =>
       res.status(500).json(boom.internal('unable to find image', err)),
@@ -302,5 +297,6 @@ module.exports = {
   saveCatDescription,
   getCatValidationRules,
   uploadCatImage,
-  getImageById,
+  getCatImages,
+  getAllCats
 }

@@ -141,7 +141,7 @@ function uploadCatImage(image_link, cat_id) {
 /**
  * Получение изображений кота
  */
-function getCatImage(catId) {
+function getCatImages(catId) {
   return pool
     .query('SELECT Link FROM Images WHERE id_cat = $1', [catId])
     .then(selectResult => {
@@ -161,6 +161,6 @@ module.exports = {
   saveCatDescription,
   findCatsValidationRules,
   uploadCatImage,
-  getCatImage,
+  getCatImages,
   allCats
 }
