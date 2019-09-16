@@ -12,7 +12,7 @@ const {
   saveCatDescription,
   getCatValidationRules,
   uploadCatImage,
-  getImageById
+  getCatImages,
 } = require('./cats-controller')
 const { swaggerSpec } = require('./swagger-controller')
 const { serverPort } = require('./configs')
@@ -143,8 +143,100 @@ app.delete('/cats/delete-by-name', deleteCatByName)
 app.post('/cats/save-description', saveCatDescription)
 app.get('/cats/validation', getCatValidationRules)
 app.use('/api-docs-ui', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
-
+/**
+ * @swagger
+ *
+ * /cats/:id/upload:
+ *   post:
+ *     description: Добавление изображения кота
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Id кота
+ *     requestBody:
+ *        content:
+ *          multipart/form-data:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                file:
+ *                  type: string
+ *                  format: binary
+ *     responses:
+ *       200:
+ *         description: Имя загруженного изображения
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 fileUrl:
+ *                   type: string
+ */
 app.post('/cats/:id/upload', upload.single('file'), uploadCatImage)
-app.get('/cats/:catId/photos', getImageById)
+/**
+ * @swagger
+ *
+ * /cats/:catId/photos:
+ *   get:
+ *     description: Получение изображений по id кота
+ *     produces:
+ *       - application/json
+ *     requestBody:
+ *       description: Фильтр поиска имени
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 description: Имя кота
+ *                 type: string
+ *                 required: true
+ *               genders:
+ *                 description: Пол кота
+ *                 type: array
+ *                 items:
+ *                   $ref: '#/definitions/GenderEnum'
+ *     responses:
+ *       200:
+ *         description: Имена по группам алфавита с их количеством
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 groups:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       title:
+ *                         type: string
+ *                       count:
+ *                         type: number
+ *                       cats:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             id:
+ *                               type: number
+ *                             name:
+ *                               type: string
+ *                             description:
+ *                               type: string
+ *                             tags:
+ *                               type: array
+ *                               items:
+ *                                 type: string
+ *                             gender:
+ *                               $ref: '#/definitions/GenderEnum'
+ */
+app.get('/cats/:catId/photos', getCatImages)
 
 app.listen(serverPort)
