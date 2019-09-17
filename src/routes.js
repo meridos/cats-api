@@ -21,6 +21,7 @@ const { upload } = require('./multer')
 
 const app = express()
 app.use(bodyParser.json())
+app.use('/photos', express.static('./public/photos'))
 
 /**
  * Документация по описанию swagger:
