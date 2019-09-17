@@ -35,5 +35,6 @@ Thumbs.db
 /out/
 /logs/
 /reports/
+/public/
 
 deploy_key 
