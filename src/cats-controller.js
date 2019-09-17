@@ -252,7 +252,6 @@ function deleteCatByName(req, res) {
  * Добавление изображения коту
  */
 function uploadCatImage(req, res, next) {
-  console.log(req.file)
   if (!req.file) {
     res.status(400).json(boom.internal('file is required', err))
     return next(err)
@@ -260,13 +259,11 @@ function uploadCatImage(req, res, next) {
 
   catsStorage
     .uploadCatImage(req.file.filename, req.params.id)
-    .then(res.json({ fileUrl: '/images/' + req.file.filename })
+    .then(() => res.json({ fileUrl: '/photos/' + req.file.filename })
     )
     .catch(err =>
       res.status(500).json(boom.internal('unable to insert db', err)),
     )
-
-  res.json({ fileUrl: '/images/' + req.file.filename })
 }
 
 function getCatImages(req, res) {

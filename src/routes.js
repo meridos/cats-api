@@ -176,7 +176,7 @@ app.use('/api-docs-ui', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 /**
  * @swagger
  *
- * /cats/:id/upload:
+ * /cats/{id}/upload:
  *   post:
  *     description: Добавление изображения кота
  *     parameters:
@@ -210,62 +210,30 @@ app.post('/cats/:id/upload', upload.single('file'), uploadCatImage)
 /**
  * @swagger
  *
- * /cats/:catId/photos:
+ * /cats/{catId}/photos:
  *   get:
  *     description: Получение изображений по id кота
  *     produces:
  *       - application/json
- *     requestBody:
- *       description: Фильтр поиска имени
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 description: Имя кота
- *                 type: string
- *                 required: true
- *               genders:
- *                 description: Пол кота
- *                 type: array
- *                 items:
- *                   $ref: '#/definitions/GenderEnum'
+ *     parameters:
+ *       - in: path
+ *         name: catId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Id кота
  *     responses:
  *       200:
- *         description: Имена по группам алфавита с их количеством
+ *         description: список фотографий кота
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 groups:
+ *                 images:
  *                   type: array
  *                   items:
- *                     type: object
- *                     properties:
- *                       title:
- *                         type: string
- *                       count:
- *                         type: number
- *                       cats:
- *                         type: array
- *                         items:
- *                           type: object
- *                           properties:
- *                             id:
- *                               type: number
- *                             name:
- *                               type: string
- *                             description:
- *                               type: string
- *                             tags:
- *                               type: array
- *                               items:
- *                                 type: string
- *                             gender:
- *                               $ref: '#/definitions/GenderEnum'
+ *                     type: string
  */
 app.get('/cats/:catId/photos', getCatImages)
 
