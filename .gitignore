@@ -9,5 +9,6 @@ yarn-error.log
 /.data
 /dist
 /.idea
+/public/
 
-deploy_key 
+deploy_key

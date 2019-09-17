@@ -13,14 +13,14 @@ function searchCatsByParams(req, res) {
   }
 
   console.log(
-    `searching for cats with name like ${searchParams.name} and ${searchParams.genders}`
+    `searching for cats with name like ${searchParams.name} and ${searchParams.genders}`,
   )
 
   return validateName(searchParams.name)
     .then(() => catsStorage.findCatsByParams(searchParams))
     .then(foundCats => res.json(groupNamesAndSort(foundCats)))
     .catch(err =>
-      res.status(500).json(boom.internal('unable to find cats', err))
+      res.status(500).json(boom.internal('unable to find cats', err)),
     )
 }
 
@@ -46,9 +46,10 @@ function searchCatsByNamePattern(req, res) {
     .then(() => catsStorage.findCatByNamePattern(name, Number(limit)))
     .then(foundCats => res.json(foundCats))
     .catch(err =>
-      res.status(500).json(boom.internal('unable to find cats', err))
+      res.status(500).json(boom.internal('unable to find cats', err)),
     )
 }
+
 /**
  * Добавление новых котов
  * @param {*} req - параметры, пришедшие от клиента и содержащие информацию о новом коте (имя, пол)
@@ -74,10 +75,10 @@ function addCats(req, res) {
     .then(storedCats =>
       res.json({
         cats: storedCats,
-      })
+      }),
     )
     .catch(err =>
-      res.status(500).json(boom.internal('unable to save cats', err))
+      res.status(500).json(boom.internal('unable to save cats', err)),
     )
 }
 
@@ -100,7 +101,7 @@ function saveCatDescription(req, res) {
       return res.json({ cat: catFound })
     })
     .catch(err =>
-      res.status(500).json(boom.internal('unable to save cat description', err))
+      res.status(500).json(boom.internal('unable to save cat description', err)),
     )
 }
 
@@ -120,13 +121,14 @@ function getCatById(req, res) {
       return res.json({ cat: catFound })
     })
     .catch(err =>
-      res.status(500).json(boom.internal('unable to find cat', err))
+      res.status(500).json(boom.internal('unable to find cat', err)),
     )
 }
 
 function isEmpty(value) {
   return value == null || value.length == 0
 }
+
 /**
  * Группировка и сортировка полученных котов с характеристиками из БД
  * @param {*} cats - список строк котов с характеристиками, которые возвращаются клиенту
@@ -163,6 +165,7 @@ function groupByFirstLetter(cats) {
 
   return groups
 }
+
 /**
  * Сортировка групп котов в алфавитном порядке
  * @param {*} groups - мапа групп готов, содержит title и список объектов
@@ -182,6 +185,7 @@ function sortGroupAlphabetically(groups) {
 
   return sorterGroup
 }
+
 /**
  * Вычисление количества найденных имен в списке
  * @param {*} groups - список групп с именами
@@ -195,6 +199,7 @@ function countNames(groups) {
   }
   return count
 }
+
 /**
  * Модификация записи имени кота в запись с большой буквы
  * @param {*} string - имя кота
@@ -202,6 +207,7 @@ function countNames(groups) {
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1)
 }
+
 /**
  * Получение правил валидации имен
  * @param {*} req - запрос, отправляемый клиентом (содержит имя кота)
@@ -214,7 +220,7 @@ function getCatValidationRules(req, res) {
     .catch(err =>
       res
         .status(500)
-        .json(boom.internal('unable to find cats validation rules', err))
+        .json(boom.internal('unable to find cats validation rules', err)),
     )
 }
 
@@ -239,7 +245,45 @@ function validateName(name) {
   })
 }
 
-function deleteCatByName(req, res) {}
+function deleteCatByName(req, res) {
+}
+
+/**
+ * Добавление изображения коту
+ */
+function uploadCatImage(req, res, next) {
+  if (!req.file) {
+    res.status(400).json(boom.internal('file is required', err))
+    return next(err)
+  }
+
+  catsStorage
+    .uploadCatImage(req.file.filename, req.params.id)
+    .then(() => res.json({ fileUrl: '/photos/' + req.file.filename })
+    )
+    .catch(err =>
+      res.status(500).json(boom.internal('unable to insert db', err)),
+    )
+}
+
+function getCatImages(req, res) {
+  const catId  = req.params.catId;
+
+  if (isEmpty(catId)) {
+    return res.status(400).json(boom.badRequest('image id is absent'))
+  }
+
+  catsStorage
+    .getCatImages(catId)
+    .then(imageFound => {
+      const images = (imageFound || []).map(obj => '/photos/' + obj.link)
+
+      return res.json({ images: images })
+    })
+    .catch(err =>
+      res.status(500).json(boom.internal('unable to find image', err)),
+    )
+}
 
 module.exports = {
   searchCatsByParams,
@@ -249,5 +293,7 @@ module.exports = {
   getCatById,
   saveCatDescription,
   getCatValidationRules,
+  uploadCatImage,
+  getCatImages,
   getAllCats
 }
