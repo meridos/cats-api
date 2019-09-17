@@ -6,7 +6,7 @@ services:
       - 5432:5432
     volumes:
       - ./.data/pg:/var/lib/postgresql/data
-    environment: 
+    environment:
       POSTGRES_PASSWORD: cats
       POSTGRES_USER: cats  
       POSTGRES_DB: cats

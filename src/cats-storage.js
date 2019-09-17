@@ -127,6 +127,32 @@ function findCatsValidationRules() {
     .then(selectResult => selectResult.rows)
 }
 
+/**
+ * Добавление изображения в БД
+ */
+function uploadCatImage(image_link, cat_id) {
+
+  return pool
+    .query(
+      'INSERT INTO Images (link, id_cat) VALUES ($1, $2) RETURNING *', [image_link, cat_id])
+    .then(insertResult => insertResult.rows[0])
+}
+
+/**
+ * Получение изображений кота
+ */
+function getCatImages(catId) {
+  return pool
+    .query('SELECT Link FROM Images WHERE id_cat = $1', [catId])
+    .then(selectResult => {
+      if (selectResult.rows.length == 0) {
+        return null
+      }
+
+      return selectResult.rows
+    })
+}
+
 module.exports = {
   addCats,
   findCatsByParams,
@@ -134,5 +160,7 @@ module.exports = {
   findCatById,
   saveCatDescription,
   findCatsValidationRules,
+  uploadCatImage,
+  getCatImages,
   allCats
 }
