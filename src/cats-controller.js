@@ -25,15 +25,18 @@ function searchCatsByParams(req, res) {
 }
 
 function getAllCats(req, res) {
-  console.log(`getting all cats`)
+  const { order } = req.query
+  const reverseSort = (order || 'asc').toLowerCase() === 'desc'
+
+  console.log(`getting all cats with order = ${order}`)
 
   catsStorage
     .allCats()
     .then(storedCats =>
-      res.json(groupNamesAndSort(storedCats))
+      res.json(groupNamesAndSort(storedCats, reverseSort)),
     )
     .catch(err =>
-      res.status(500).json(boom.internal('unable to get all cats', err))
+      res.status(500).json(boom.internal('unable to get all cats', err)),
     )
 
 }
@@ -133,9 +136,9 @@ function isEmpty(value) {
  * Группировка и сортировка полученных котов с характеристиками из БД
  * @param {*} cats - список строк котов с характеристиками, которые возвращаются клиенту
  */
-function groupNamesAndSort(cats) {
+function groupNamesAndSort(cats, reverseSort) {
   const groups = groupByFirstLetter(cats)
-  const sorterGroup = sortGroupAlphabetically(groups)
+  const sorterGroup = sortGroupAlphabetically(groups, reverseSort)
   const count = countNames(sorterGroup)
 
   return {
@@ -170,9 +173,13 @@ function groupByFirstLetter(cats) {
  * Сортировка групп котов в алфавитном порядке
  * @param {*} groups - мапа групп готов, содержит title и список объектов
  */
-function sortGroupAlphabetically(groups) {
+function sortGroupAlphabetically(groups, reverseSort) {
   const keysSortedAlphabetically = Array.from(Object.keys(groups)).sort()
   const sorterGroup = []
+
+  if (reverseSort) {
+    keysSortedAlphabetically.reverse()
+  }
 
   for (let i = 0; i < keysSortedAlphabetically.length; i++) {
     const key = keysSortedAlphabetically[i]
@@ -259,7 +266,7 @@ function uploadCatImage(req, res, next) {
 
   catsStorage
     .uploadCatImage(req.file.filename, req.params.id)
-    .then(() => res.json({ fileUrl: '/photos/' + req.file.filename })
+    .then(() => res.json({ fileUrl: '/photos/' + req.file.filename }),
     )
     .catch(err =>
       res.status(500).json(boom.internal('unable to insert db', err)),
@@ -267,7 +274,7 @@ function uploadCatImage(req, res, next) {
 }
 
 function getCatImages(req, res) {
-  const catId  = req.params.catId;
+  const catId = req.params.catId
 
   if (isEmpty(catId)) {
     return res.status(400).json(boom.badRequest('image id is absent'))
@@ -295,5 +302,5 @@ module.exports = {
   getCatValidationRules,
   uploadCatImage,
   getCatImages,
-  getAllCats
+  getAllCats,
 }

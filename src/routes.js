@@ -274,6 +274,14 @@ app.get('/cats/validation', getCatValidationRules)
  * /cats/all:
  *   get:
  *     description: Вывод списка всех котов
+ *     parameters:
+ *       - in: query
+ *         name: order
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *         required: true
+ *         description: Id кота
  *     responses:
  *       200:
  *         description: список имен
