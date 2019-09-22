@@ -9,29 +9,31 @@ const catsStorage = require('./cats-storage')
 function searchCatsByParams(req, res) {
   const searchParams = {
     name: req.body.name,
-    genders: req.body.genders,
+    gender: req.body.gender,
   }
 
   console.log(
-    `searching for cats with name like ${searchParams.name} and ${searchParams.genders}`,
+    `searching for cats with name like ${searchParams.name} and ${searchParams.gender}`,
   )
 
   return validateName(searchParams.name)
     .then(() => catsStorage.findCatsByParams(searchParams))
-    .then(foundCats => res.json(groupNamesAndSort(foundCats)))
+    .then(foundCats => {
+      return res.json(groupNamesAndSort(foundCats))
+    })
     .catch(err =>
       res.status(500).json(boom.internal('unable to find cats', err)),
     )
 }
 
 function getAllCats(req, res) {
-  const { order } = req.query
+  const { order, gender } = req.query
   const reverseSort = (order || 'asc').toLowerCase() === 'desc'
 
-  console.log(`getting all cats with order = ${order}`)
+  console.log(`getting all cats with order = ${order} and gender = ${gender}`)
 
   catsStorage
-    .allCats()
+    .allCats(gender)
     .then(storedCats =>
       res.json(groupNamesAndSort(storedCats, reverseSort)),
     )
