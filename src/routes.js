@@ -27,6 +27,7 @@ app.use('/photos', express.static('./public/photos'))
  * Документация по описанию swagger:
  * https://swagger.io/docs/specification/about/
  */
+
 /**
  * @swagger
  *
@@ -34,10 +35,114 @@ app.use('/photos', express.static('./public/photos'))
  *   GenderEnum:
  *     type: string
  *     enum: [male, female, unisex]
+ *   Cat:
+ *     type: object
+ *     properties:
+ *       id:
+ *         type: number
+ *       name:
+ *         type: string
+ *       description:
+ *         type: string
+ *       tags:
+ *         type: array
+ *         items:
+ *           type: string
+ *       gender:
+ *         $ref: '#/definitions/GenderEnum'
+ *       likes:
+ *         type: number
+ *
+ *   Groups:
+ *     type: object
+ *     properties:
+ *       groups:
+ *         type: array
+ *         items:
+ *           type: object
+ *           properties:
+ *             title:
+ *               type: string
+ *             count:
+ *               type: number
+ *             cats:
+ *               type: array
+ *               items:
+ *                 $ref: '#/definitions/Cat'
  */
 
+/**
+ * @swagger
+ *
+ * /cats/add:
+ *   post:
+ *     description: Добавление списка имен
+ *     produces:
+ *       - application/json
+ *     requestBody:
+ *       description: Список с именами и полом
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               cats:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     name:
+ *                       description: Имя кота
+ *                       type: string
+ *                       required: true
+ *                     gender:
+ *                       description: Пол кота
+ *                       $ref: '#/definitions/GenderEnum'
+ *                     description:
+ *                       description: Описание кота
+ *                       type: string
+ *     responses:
+ *       200:
+ *         description: Список добавленных котов
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 cats:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/definitions/Cat'
+ */
 app.post('/cats/add', addCats)
+
+/**
+ * @swagger
+ *
+ * /cats/get-by-id:
+ *   get:
+ *     description: Получение кота по id
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         schema:
+ *           type: number
+ *         required: true
+ *         description: Id кота
+ *     responses:
+ *       200:
+ *         description: Объект кота
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 cat:
+ *                   $ref: '#/definitions/Cat'
+ */
 app.get('/cats/get-by-id', getCatById)
+
 /**
  * @swagger
  *
@@ -69,36 +174,8 @@ app.get('/cats/get-by-id', getCatById)
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 groups:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       title:
- *                         type: string
- *                       count:
- *                         type: number
- *                       cats:
- *                         type: array
- *                         items:
- *                           type: object
- *                           properties:
- *                             id:
- *                               type: number
- *                             name:
- *                               type: string
- *                             description:
- *                               type: string
- *                             tags:
- *                               type: array
- *                               items:
- *                                 type: string
- *                             gender:
- *                               $ref: '#/definitions/GenderEnum'
+ *               $ref: '#/definitions/Groups'
  */
-
 app.post('/cats/search', searchCatsByParams)
 
 /**
@@ -125,26 +202,71 @@ app.post('/cats/search', searchCatsByParams)
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: number
- *                 name:
- *                   type: string
- *                 description:
- *                   type: string
- *                 tags:
- *                   type: array
- *                   items:
- *                     type: string
- *                 gender:
- *                   $ref: '#/definitions/GenderEnum'
+ *               type: array
+ *               items:
+ *                 $ref: '#/definitions/Cat'
  */
 app.get('/cats/search-pattern', searchCatsByNamePattern)
-app.delete('/cats/delete-by-name', deleteCatByName)
+
+/**
+ * @swagger
+ *
+ * /cats/save-description:
+ *   post:
+ *     description: Сохранение описания имени
+ *     produces:
+ *       - application/json
+ *     requestBody:
+ *       description: Фильтр поиска имени
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               catId:
+ *                 description: id кота
+ *                 type: number
+ *                 required: true
+ *               catDescription:
+ *                 description: Описание имени
+ *                 type: string
+ *                 required: true
+ *     responses:
+ *       200:
+ *         description: Имена по группам алфавита с их количеством
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/definitions/Cat'
+ *
+ */
 app.post('/cats/save-description', saveCatDescription)
+
+/**
+ * @swagger
+ *
+ * /cats/validation:
+ *   get:
+ *     description: Получение правил валидации
+ *     responses:
+ *       200:
+ *         description: список регулярных выражений
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: number
+ *                   description:
+ *                     type: string
+ *                   regex:
+ *                     type: string
+ */
 app.get('/cats/validation', getCatValidationRules)
-app.get('/cats/all', getAllCats)
 
 /**
  * @swagger
@@ -152,28 +274,24 @@ app.get('/cats/all', getAllCats)
  * /cats/all:
  *   get:
  *     description: Вывод списка всех котов
+ *     parameters:
+ *       - in: query
+ *         name: order
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *         required: true
+ *         description: Id кота
  *     responses:
  *       200:
  *         description: список имен
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: number
- *                 name:
- *                   type: string
- *                 description:
- *                   type: string
- *                 tags:
- *                   type: array
- *                   items:
- *                     type: string
- *                 gender:
- *                   $ref: '#/definitions/GenderEnum'
+ *               $ref: '#/definitions/Groups'
  */
-app.use('/api-docs-ui', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+app.get('/cats/all', getAllCats)
+
 /**
  * @swagger
  *
@@ -208,6 +326,7 @@ app.use('/api-docs-ui', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
  *                   type: string
  */
 app.post('/cats/:id/upload', upload.single('file'), uploadCatImage)
+
 /**
  * @swagger
  *
@@ -237,5 +356,8 @@ app.post('/cats/:id/upload', upload.single('file'), uploadCatImage)
  *                     type: string
  */
 app.get('/cats/:catId/photos', getCatImages)
+
+app.delete('/cats/delete-by-name', deleteCatByName)
+app.use('/api-docs-ui', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
 app.listen(serverPort)
