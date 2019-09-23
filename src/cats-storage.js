@@ -35,9 +35,12 @@ function addCats(cats) {
 /**
  * Возвращаем всех котов
  */
-function allCats() {
+function allCats(gender) {
+  const queryAll = 'SELECT * FROM Cats'
+  const queryWithOrder = `SELECT * FROM Cats WHERE gender = '${gender}'`
+
   return pool
-    .query('SELECT * FROM Cats')
+    .query(gender ? queryWithOrder : queryAll)
     .then(selectResult => selectResult.rows)
 }
 
@@ -48,21 +51,15 @@ function allCats() {
  */
 function findCatsByParams(searchParams) {
   const catName = searchParams.name
-  const catGenders = searchParams.genders
+  const genderFilter = searchParams.gender ? ` AND gender = '${searchParams.gender}'` : ''
 
-  if (catGenders.length === 0) {
-    return pool
-      .query('SELECT * FROM Cats WHERE name ILIKE $1', [`%${catName}%`])
-      .then(selectResult => selectResult.rows)
-  } else {
-    const whereIn = catGenders.map((gender, i) => `$${i + 2}`).join(',')
-    return pool
-      .query(
-        `SELECT * FROM Cats WHERE name ILIKE $1 AND gender IN (${whereIn})`,
-        [`%${catName}%`, ...catGenders],
-      )
-      .then(selectResult => selectResult.rows)
-  }
+  console.log(searchParams.gender)
+  return pool
+    .query(
+      `SELECT * FROM Cats WHERE name ILIKE $1${genderFilter}`,
+      [`%${catName}%`],
+    )
+    .then(selectResult => selectResult.rows)
 }
 
 function findCatById(catId) {
@@ -82,7 +79,7 @@ function findCatByNamePattern(catName, limit) {
 
   const limitQuery = limit > 0
     ? ` LIMIT ${limit}`
-    : '';
+    : ''
 
   return pool
     .query(
@@ -162,5 +159,5 @@ module.exports = {
   findCatsValidationRules,
   uploadCatImage,
   getCatImages,
-  allCats
+  allCats,
 }
