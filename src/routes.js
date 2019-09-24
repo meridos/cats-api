@@ -13,7 +13,9 @@ const {
   getCatValidationRules,
   uploadCatImage,
   getCatImages,
-  getAllCats
+  getAllCats,
+  setLike,
+  deleteLike,
 } = require('./cats-controller')
 const { swaggerSpec } = require('./swagger-controller')
 const { serverPort } = require('./configs')
@@ -295,12 +297,12 @@ app.get('/cats/all', getAllCats)
 /**
  * @swagger
  *
- * /cats/{id}/upload:
+ * /cats/{catId}/upload:
  *   post:
  *     description: Добавление изображения кота
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: catId
  *         schema:
  *           type: integer
  *         required: true
@@ -356,6 +358,52 @@ app.post('/cats/:id/upload', upload.single('file'), uploadCatImage)
  *                     type: string
  */
 app.get('/cats/:catId/photos', getCatImages)
+
+/**
+ * @swagger
+ *
+ * /cats/{catId}/like:
+ *   post:
+ *     description: Добавление лайка коту
+ *     parameters:
+ *       - in: path
+ *         name: catId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Id кота
+ *     responses:
+ *       200:
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *               example: OK
+ */
+app.post('/cats/:catId/like', setLike)
+
+/**
+ * @swagger
+ *
+ * /cats/{catId}/like:
+ *   delete:
+ *     description: Удаление лайка у кота
+ *     parameters:
+ *       - in: path
+ *         name: catId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Id кота
+ *     responses:
+ *       200:
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *               example: OK
+ */
+app.delete('/cats/:catId/like', deleteLike)
 
 app.delete('/cats/delete-by-name', deleteCatByName)
 app.use('/api-docs-ui', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
