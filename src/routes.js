@@ -327,7 +327,7 @@ app.get('/cats/all', getAllCats)
  *                 fileUrl:
  *                   type: string
  */
-app.post('/cats/:id/upload', upload.single('file'), uploadCatImage)
+app.post('/cats/:catId/upload', upload.single('file'), uploadCatImage)
 
 /**
  * @swagger

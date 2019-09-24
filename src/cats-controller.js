@@ -264,17 +264,18 @@ function uploadCatImage(req, res, next) {
   const { catId } = req.params
 
   if (!req.file) {
+    console.log(`Error: ${catId} file required`)
     res.status(400).json(boom.internal('file is required', err))
     return next(err)
   }
 
   catsStorage
     .uploadCatImage(req.file.filename, catId)
-    .then(() => res.json({ fileUrl: '/photos/' + req.file.filename }),
-    )
-    .catch(err =>
-      res.status(500).json(boom.internal('unable to insert db', err)),
-    )
+    .then(() => res.json({ fileUrl: '/photos/' + req.file.filename }))
+    .catch(err => {
+      console.log(`Error: ${catId} unable to insert db`)
+      res.status(500).json(boom.internal('unable to insert db', err))
+    })
 }
 
 function getCatImages(req, res) {
