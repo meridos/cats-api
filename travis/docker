@@ -9,5 +9,7 @@ ssh -i ./deploy_key "$PRODUCTION_USER@$PRODUCTION_SERVER" << EOF
         --restart always \
         -e NODE_ENV=production \
         -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
+        -v $PWD/public/photos:/app/public/photos \
+        -p 3001:3001 \
         "nasyalnik/cats-api:travis-$TRAVIS_BUILD_NUMBER"
 EOF

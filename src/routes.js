@@ -2,6 +2,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const swaggerUi = require('swagger-ui-express')
 
+
 const {
   addCats,
   deleteCatByName,
@@ -10,12 +11,17 @@ const {
   searchCatsByNamePattern,
   saveCatDescription,
   getCatValidationRules,
+  uploadCatImage,
+  getCatImages,
+  getAllCats
 } = require('./cats-controller')
 const { swaggerSpec } = require('./swagger-controller')
 const { serverPort } = require('./configs')
+const { upload } = require('./multer')
 
 const app = express()
 app.use(bodyParser.json())
+app.use('/photos', express.static('./public/photos'))
 
 /**
  * Документация по описанию swagger:
@@ -138,6 +144,98 @@ app.get('/cats/search-pattern', searchCatsByNamePattern)
 app.delete('/cats/delete-by-name', deleteCatByName)
 app.post('/cats/save-description', saveCatDescription)
 app.get('/cats/validation', getCatValidationRules)
+app.get('/cats/all', getAllCats)
+
+/**
+ * @swagger
+ *
+ * /cats/all:
+ *   get:
+ *     description: Вывод списка всех котов
+ *     responses:
+ *       200:
+ *         description: список имен
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: number
+ *                 name:
+ *                   type: string
+ *                 description:
+ *                   type: string
+ *                 tags:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                 gender:
+ *                   $ref: '#/definitions/GenderEnum'
+ */
 app.use('/api-docs-ui', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+/**
+ * @swagger
+ *
+ * /cats/{id}/upload:
+ *   post:
+ *     description: Добавление изображения кота
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Id кота
+ *     requestBody:
+ *        content:
+ *          multipart/form-data:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                file:
+ *                  type: string
+ *                  format: binary
+ *     responses:
+ *       200:
+ *         description: Имя загруженного изображения
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 fileUrl:
+ *                   type: string
+ */
+app.post('/cats/:id/upload', upload.single('file'), uploadCatImage)
+/**
+ * @swagger
+ *
+ * /cats/{catId}/photos:
+ *   get:
+ *     description: Получение изображений по id кота
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: path
+ *         name: catId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Id кота
+ *     responses:
+ *       200:
+ *         description: список фотографий кота
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 images:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ */
+app.get('/cats/:catId/photos', getCatImages)
 
 app.listen(serverPort)
