@@ -13,7 +13,7 @@ function searchCatsByParams(req, res) {
   }
 
   console.log(
-    `searching for cats with name like ${searchParams.name} and ${searchParams.gender}`,
+    `searching for cats with name like ${searchParams.name} and ${searchParams.gender}`
   )
 
   return validateName(searchParams.name)
@@ -22,10 +22,15 @@ function searchCatsByParams(req, res) {
       return res.json(groupNamesAndSort(foundCats))
     })
     .catch(err =>
-      res.status(500).json(boom.internal('unable to find cats', err)),
+      res.status(500).json(boom.internal('unable to find cats', err))
     )
 }
 
+/**
+ * Получение списка всех котов с учетом фильтра по полу, которые есть в БД
+ * @param {*} req - параметры, с которыми запрашивается список (пол котов)
+ * @param {*} res - отсортированный массив котов
+ */
 function getAllCats(req, res) {
   const { order, gender } = req.query
   const reverseSort = (order || 'asc').toLowerCase() === 'desc'
@@ -34,15 +39,16 @@ function getAllCats(req, res) {
 
   catsStorage
     .allCats(gender)
-    .then(storedCats =>
-      res.json(groupNamesAndSort(storedCats, reverseSort)),
-    )
+    .then(storedCats => res.json(groupNamesAndSort(storedCats, reverseSort)))
     .catch(err =>
-      res.status(500).json(boom.internal('unable to get all cats', err)),
+      res.status(500).json(boom.internal('unable to get all cats', err))
     )
-
 }
-
+/**
+ * Поиск списка котов для списка подсказок
+ * @param {*} req  - поисковый запрос и лимит на количество имен, возращаемых в ответе
+ * @param {*} res
+ */
 function searchCatsByNamePattern(req, res) {
   const { name, limit } = req.query
   console.log(`searching for cats with name like ${name} limit ${limit}`)
@@ -51,7 +57,7 @@ function searchCatsByNamePattern(req, res) {
     .then(() => catsStorage.findCatByNamePattern(name, Number(limit)))
     .then(foundCats => res.json(foundCats))
     .catch(err =>
-      res.status(500).json(boom.internal('unable to find cats', err)),
+      res.status(500).json(boom.internal('unable to find cats', err))
     )
 }
 
@@ -75,18 +81,25 @@ function addCats(req, res) {
     }
   }
 
-  catsStorage
-    .addCats(cats)
+  Promise.all(cats.map(cat => validateName(cat.name)))
+    .then(() => catsStorage.addCats(cats))
     .then(storedCats =>
       res.json({
         cats: storedCats,
-      }),
+      })
     )
-    .catch(err =>
-      res.status(500).json(boom.internal('unable to save cats', err)),
-    )
+    .catch(err => {
+      res
+        .status(500)
+        .json(boom.internal('unable to save cats', { message: err.message }))
+    })
 }
 
+/**
+ * Сохранение описание кота в БД
+ * @param {*} req
+ * @param {*} res
+ */
 function saveCatDescription(req, res) {
   const { catId, catDescription } = req.body
 
@@ -106,7 +119,7 @@ function saveCatDescription(req, res) {
       return res.json({ cat: catFound })
     })
     .catch(err =>
-      res.status(500).json(boom.internal('unable to save cat description', err)),
+      res.status(500).json(boom.internal('unable to save cat description', err))
     )
 }
 
@@ -126,7 +139,7 @@ function getCatById(req, res) {
       return res.json({ cat: catFound })
     })
     .catch(err =>
-      res.status(500).json(boom.internal('unable to find cat', err)),
+      res.status(500).json(boom.internal('unable to find cat', err))
     )
 }
 
@@ -229,7 +242,7 @@ function getCatValidationRules(req, res) {
     .catch(err =>
       res
         .status(500)
-        .json(boom.internal('unable to find cats validation rules', err)),
+        .json(boom.internal('unable to find cats validation rules', err))
     )
 }
 
@@ -254,8 +267,7 @@ function validateName(name) {
   })
 }
 
-function deleteCatByName(req, res) {
-}
+function deleteCatByName(req, res) {}
 
 /**
  * Добавление изображения коту
@@ -268,10 +280,9 @@ function uploadCatImage(req, res, next) {
 
   catsStorage
     .uploadCatImage(req.file.filename, req.params.id)
-    .then(() => res.json({ fileUrl: '/photos/' + req.file.filename }),
-    )
+    .then(() => res.json({ fileUrl: '/photos/' + req.file.filename }))
     .catch(err =>
-      res.status(500).json(boom.internal('unable to insert db', err)),
+      res.status(500).json(boom.internal('unable to insert db', err))
     )
 }
 
@@ -290,7 +301,7 @@ function getCatImages(req, res) {
       return res.json({ images: images })
     })
     .catch(err =>
-      res.status(500).json(boom.internal('unable to find image', err)),
+      res.status(500).json(boom.internal('unable to find image', err))
     )
 }
 

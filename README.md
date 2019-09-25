@@ -31,7 +31,7 @@ INSERT INTO Cats_Validations (description, regex) VALUES
   ('Цифры не принимаются!', '^\D*$'),
   ('Только имена на русском!', '^[а-яА-Я\s-]*$'),
   ('Из спецсимволов можно только тире и только посередине имени', '^([\d\wа-яА-Я]+|[\d\wа-яА-Я]+[-\s]|[\d\wа-яА-Я]+[-\s][\d\wа-яА-Я]+)$');
-  
+
 -- Feature 8 upload images:
 CREATE TABLE images (
     id SERIAL PRIMARY KEY,
