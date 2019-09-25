@@ -41,4 +41,9 @@ CREATE TABLE images (
    references cats ("id")
     on delete cascade
 );
+
+-- Feature 2: Add likes names
+ALTER TABLE Cats
+    ADD COLUMN likes SMALLINT NOT NULL DEFAULT 0
+    CONSTRAINT likes_positive CHECK (likes >= 0);
 ```

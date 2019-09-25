@@ -261,22 +261,25 @@ function deleteCatByName(req, res) {
  * Добавление изображения коту
  */
 function uploadCatImage(req, res, next) {
+  const { catId } = req.params
+
   if (!req.file) {
+    console.log(`Error: ${catId} file required`)
     res.status(400).json(boom.internal('file is required', err))
     return next(err)
   }
 
   catsStorage
-    .uploadCatImage(req.file.filename, req.params.id)
-    .then(() => res.json({ fileUrl: '/photos/' + req.file.filename }),
-    )
-    .catch(err =>
-      res.status(500).json(boom.internal('unable to insert db', err)),
-    )
+    .uploadCatImage(req.file.filename, catId)
+    .then(() => res.json({ fileUrl: '/photos/' + req.file.filename }))
+    .catch(err => {
+      console.log(`Error: ${catId} unable to insert db`)
+      res.status(500).json(boom.internal('unable to insert db', err))
+    })
 }
 
 function getCatImages(req, res) {
-  const catId = req.params.catId
+  const { catId } = req.params
 
   if (isEmpty(catId)) {
     return res.status(400).json(boom.badRequest('image id is absent'))
@@ -294,6 +297,53 @@ function getCatImages(req, res) {
     )
 }
 
+/**
+ * Установка лайка коту
+ * @param req
+ * @param res
+ */
+function setLike(req, res) {
+  const { catId } = req.params
+
+  if (isEmpty(catId)) {
+    return res.status(400).json(boom.badRequest('cat id is absent'))
+  }
+
+  catsStorage.plusLike(catId)
+    .then(() => {
+      res.status(200).send('OK')
+    })
+    .catch(err => {
+      console.log('Error: set like', err)
+
+      res.status(500).json(boom.internal('Error set likes', err))
+    })
+}
+
+/**
+ * Удаление лайка у кота
+ * @param req
+ * @param res
+ * @returns {*|Promise<any>}
+ */
+function deleteLike(req, res) {
+  const { catId } = req.params
+
+  if (isEmpty(catId)) {
+    return res.status(400).json(boom.badRequest('cat id is absent'))
+  }
+
+  catsStorage.minusLike(catId)
+    .then(() => {
+      res.status(200).send('OK')
+    })
+    .catch(err => {
+      console.log('Error: delete like', err)
+
+      res.status(500).json(boom.internal('Error delete likes', err))
+    })
+}
+
 module.exports = {
   searchCatsByParams,
   searchCatsByNamePattern,
@@ -305,4 +355,6 @@ module.exports = {
   uploadCatImage,
   getCatImages,
   getAllCats,
+  setLike,
+  deleteLike,
 }
