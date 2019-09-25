@@ -80,6 +80,7 @@ function addCats(req, res) {
       return res.status(400).json(boom.badRequest('cat name is absent'))
     }
   }
+
   Promise.all(cats.map(cat => validateName(cat.name)))
     .then(() => catsStorage.addCats(cats))
     .then(storedCats =>
