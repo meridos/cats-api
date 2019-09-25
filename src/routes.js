@@ -13,9 +13,7 @@ const {
   getCatValidationRules,
   uploadCatImage,
   getCatImages,
-  getAllCats,
-  setLike,
-  deleteLike,
+  getAllCats
 } = require('./cats-controller')
 const { swaggerSpec } = require('./swagger-controller')
 const { serverPort } = require('./configs')
@@ -297,12 +295,12 @@ app.get('/cats/all', getAllCats)
 /**
  * @swagger
  *
- * /cats/{catId}/upload:
+ * /cats/{id}/upload:
  *   post:
  *     description: Добавление изображения кота
  *     parameters:
  *       - in: path
- *         name: catId
+ *         name: id
  *         schema:
  *           type: integer
  *         required: true
@@ -327,7 +325,7 @@ app.get('/cats/all', getAllCats)
  *                 fileUrl:
  *                   type: string
  */
-app.post('/cats/:catId/upload', upload.single('file'), uploadCatImage)
+app.post('/cats/:id/upload', upload.single('file'), uploadCatImage)
 
 /**
  * @swagger
@@ -358,52 +356,6 @@ app.post('/cats/:catId/upload', upload.single('file'), uploadCatImage)
  *                     type: string
  */
 app.get('/cats/:catId/photos', getCatImages)
-
-/**
- * @swagger
- *
- * /cats/{catId}/like:
- *   post:
- *     description: Добавление лайка коту
- *     parameters:
- *       - in: path
- *         name: catId
- *         schema:
- *           type: integer
- *         required: true
- *         description: Id кота
- *     responses:
- *       200:
- *         content:
- *           text/plain:
- *             schema:
- *               type: string
- *               example: OK
- */
-app.post('/cats/:catId/like', setLike)
-
-/**
- * @swagger
- *
- * /cats/{catId}/like:
- *   delete:
- *     description: Удаление лайка у кота
- *     parameters:
- *       - in: path
- *         name: catId
- *         schema:
- *           type: integer
- *         required: true
- *         description: Id кота
- *     responses:
- *       200:
- *         content:
- *           text/plain:
- *             schema:
- *               type: string
- *               example: OK
- */
-app.delete('/cats/:catId/like', deleteLike)
 
 app.delete('/cats/delete-by-name', deleteCatByName)
 app.use('/api-docs-ui', swaggerUi.serve, swaggerUi.setup(swaggerSpec))

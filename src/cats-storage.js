@@ -150,24 +150,6 @@ function getCatImages(catId) {
     })
 }
 
-/**
- * Добавление лайка коту
- * @param catId
- * @returns {*|query|void|Promise<PermissionStatus>}
- */
-function plusLike(catId) {
-  return pool.query('UPDATE Cats SET likes = likes + 1 WHERE id = $1', [catId])
-}
-
-/**
- * Удаление лайка коту
- * @param catId
- * @returns {*|query|void|Promise<PermissionStatus>}
- */
-function minusLike(catId) {
-  return pool.query('UPDATE Cats SET likes = likes - 1 WHERE id = $1', [catId])
-}
-
 module.exports = {
   addCats,
   findCatsByParams,
@@ -178,6 +160,4 @@ module.exports = {
   uploadCatImage,
   getCatImages,
   allCats,
-  plusLike,
-  minusLike,
 }
