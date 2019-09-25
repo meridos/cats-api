@@ -26,6 +26,11 @@ function searchCatsByParams(req, res) {
     )
 }
 
+/**
+ * Получение списка всех котов с учетом фильтра по полу, которые есть в БД
+ * @param {*} req - параметры, с которыми запрашивается список (пол котов)
+ * @param {*} res - отсортированный массив котов
+ */
 function getAllCats(req, res) {
   const { order, gender } = req.query
   const reverseSort = (order || 'asc').toLowerCase() === 'desc'
@@ -39,7 +44,11 @@ function getAllCats(req, res) {
       res.status(500).json(boom.internal('unable to get all cats', err))
     )
 }
-
+/**
+ * Поиск списка котов для списка подсказок
+ * @param {*} req  - поисковый запрос и лимит на количество имен, возращаемых в ответе
+ * @param {*} res
+ */
 function searchCatsByNamePattern(req, res) {
   const { name, limit } = req.query
   console.log(`searching for cats with name like ${name} limit ${limit}`)
@@ -85,6 +94,11 @@ function addCats(req, res) {
     })
 }
 
+/**
+ * Сохранение описание кота в БД
+ * @param {*} req
+ * @param {*} res
+ */
 function saveCatDescription(req, res) {
   const { catId, catDescription } = req.body
 
