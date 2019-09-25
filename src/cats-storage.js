@@ -13,6 +13,9 @@ pool.on('error', err => {
   process.exit(-1)
 })
 
+/**
+ * Добавляем котов в БД
+ */
 function addCats(cats) {
   const inserts = []
 
