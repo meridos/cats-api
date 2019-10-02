@@ -305,6 +305,13 @@ function getCatImages(req, res) {
     )
 }
 
+function getAppVersion(req, res) {
+  res.json({
+    build: process.env.BUILD_NUMBER,
+  })
+}
+
+
 module.exports = {
   searchCatsByParams,
   searchCatsByNamePattern,
@@ -316,4 +323,5 @@ module.exports = {
   uploadCatImage,
   getCatImages,
   getAllCats,
+  getAppVersion,
 }
