@@ -2,7 +2,6 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const swaggerUi = require('swagger-ui-express')
 
-
 const {
   addCats,
   deleteCatByName,
@@ -13,13 +12,20 @@ const {
   getCatValidationRules,
   uploadCatImage,
   getCatImages,
-  getAllCats
+  getAllCats,
 } = require('./cats-controller')
 const { swaggerSpec } = require('./swagger-controller')
 const { serverPort } = require('./configs')
 const { upload } = require('./multer')
 
+const pino = require('pino')()
+const expressPino = require('express-pino-logger')({
+  logger: pino
+})
+
 const app = express()
+
+app.use(expressPino)
 app.use(bodyParser.json())
 app.use('/photos', express.static('./public/photos'))
 

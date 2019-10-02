@@ -3,7 +3,6 @@ const tmp = require("tmp");
 const path = require("path");
 const fs = require("fs");
 
-let namesDb;
 
 beforeEach(done => {
   const tmpdir = tmp.dirSync();
