@@ -18,11 +18,7 @@ const {
 const { swaggerSpec } = require('./swagger-controller')
 const { serverPort } = require('./configs')
 const { upload } = require('./multer')
-
-const pino = require('pino')()
-const expressPino = require('express-pino-logger')({
-  logger: pino
-})
+const { expressPino } = require('./logger')
 
 const app = express()
 
