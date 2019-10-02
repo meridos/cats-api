@@ -1,6 +1,6 @@
 const { Pool } = require('pg')
 const { pgUser, pgPass, pgDb, pgHost } = require('./configs.js')
-const { pino } = require('./routes')
+const { logger } = require('./logger')
 
 const pool = new Pool({
   user: pgUser,
@@ -57,7 +57,7 @@ function findCatsByParams(searchParams) {
   const catName = searchParams.name
   const genderFilter = searchParams.gender ? ` AND gender = '${searchParams.gender}'` : ''
 
-  pino.info(`searching cats by gender: ${searchParams.gender}`)
+  logger.info(`searching cats by name: ${catName} and gender: ${searchParams.gender}`)
 
   return pool
     .query(

@@ -13,15 +13,12 @@ const {
   uploadCatImage,
   getCatImages,
   getAllCats,
+  getAppVersion,
 } = require('./cats-controller')
 const { swaggerSpec } = require('./swagger-controller')
 const { serverPort } = require('./configs')
 const { upload } = require('./multer')
-
-const pino = require('pino')()
-const expressPino = require('express-pino-logger')({
-  logger: pino
-})
+const { expressPino } = require('./logger')
 
 const app = express()
 
@@ -362,6 +359,27 @@ app.post('/cats/:id/upload', upload.single('file'), uploadCatImage)
  *                     type: string
  */
 app.get('/cats/:catId/photos', getCatImages)
+
+/**
+ * @swagger
+ *
+ * /version:
+ *   get:
+ *     description: Получение версии проекта
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: версия проекта
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 build:
+ *                   type: number
+ */
+app.get('/version', getAppVersion)
 
 app.delete('/cats/delete-by-name', deleteCatByName)
 app.use('/api-docs-ui', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
