@@ -12,7 +12,7 @@ function searchCatsByParams(req, res) {
     gender: req.body.gender,
   }
 
-  console.log(
+  req.log.info(
     `searching for cats with name like ${searchParams.name} and ${searchParams.gender}`
   )
 
@@ -22,7 +22,7 @@ function searchCatsByParams(req, res) {
       return res.json(groupNamesAndSort(foundCats))
     })
     .catch(err =>
-      res.status(500).json(boom.internal('unable to find cats', err))
+      res.status(500).json(boom.internal('unable to find cats', err.stack || err.message))
     )
 }
 
@@ -35,13 +35,13 @@ function getAllCats(req, res) {
   const { order, gender } = req.query
   const reverseSort = (order || 'asc').toLowerCase() === 'desc'
 
-  console.log(`getting all cats with order = ${order} and gender = ${gender}`)
+  req.log.info(`getting all cats with order = ${order} and gender = ${gender}`)
 
   catsStorage
     .allCats(gender)
     .then(storedCats => res.json(groupNamesAndSort(storedCats, reverseSort)))
     .catch(err =>
-      res.status(500).json(boom.internal('unable to get all cats', err))
+      res.status(500).json(boom.internal('unable to get all cats', err.stack || err.message))
     )
 }
 /**
@@ -51,13 +51,13 @@ function getAllCats(req, res) {
  */
 function searchCatsByNamePattern(req, res) {
   const { name, limit } = req.query
-  console.log(`searching for cats with name like ${name} limit ${limit}`)
+  req.log.info(`searching for cats with name like ${name} limit ${limit}`)
 
   return validateName(name)
     .then(() => catsStorage.findCatByNamePattern(name, Number(limit)))
     .then(foundCats => res.json(foundCats))
     .catch(err =>
-      res.status(500).json(boom.internal('unable to find cats', err))
+      res.status(500).json(boom.internal('unable to find cats', err.stack || err.message))
     )
 }
 
@@ -69,7 +69,7 @@ function searchCatsByNamePattern(req, res) {
 function addCats(req, res) {
   const { cats } = req.body
 
-  console.log(`adding cats: ${JSON.stringify(cats)}`)
+  req.log.info(`adding cats: ${JSON.stringify(cats)}`)
 
   if (isEmpty(cats)) {
     return res.status(400).json(boom.badRequest('cats is absent'))
@@ -91,7 +91,7 @@ function addCats(req, res) {
     .catch(err => {
       res
         .status(500)
-        .json(boom.internal('unable to save cats', { message: err.message }))
+        .json(boom.internal('unable to save cats', err.stack || err.message))
     })
 }
 
@@ -103,7 +103,7 @@ function addCats(req, res) {
 function saveCatDescription(req, res) {
   const { catId, catDescription } = req.body
 
-  console.log(`saving cat description: ${catId}: ${catDescription}`)
+  req.log.info(`saving cat description: ${catId}: ${catDescription}`)
 
   if (isEmpty(catId) || isEmpty(catDescription)) {
     return res.status(400).json(boom.badRequest('cat id is absent'))
@@ -119,7 +119,7 @@ function saveCatDescription(req, res) {
       return res.json({ cat: catFound })
     })
     .catch(err =>
-      res.status(500).json(boom.internal('unable to save cat description', err))
+      res.status(500).json(boom.internal('unable to save cat description', err.stack || err.message))
     )
 }
 
@@ -139,7 +139,7 @@ function getCatById(req, res) {
       return res.json({ cat: catFound })
     })
     .catch(err =>
-      res.status(500).json(boom.internal('unable to find cat', err))
+      res.status(500).json(boom.internal('unable to find cat', err.stack || err.message))
     )
 }
 
@@ -242,7 +242,7 @@ function getCatValidationRules(req, res) {
     .catch(err =>
       res
         .status(500)
-        .json(boom.internal('unable to find cats validation rules', err))
+        .json(boom.internal('unable to find cats validation rules', err.stack || err.message))
     )
 }
 
@@ -273,21 +273,23 @@ function deleteCatByName(req, res) {}
  * Добавление изображения коту
  */
 function uploadCatImage(req, res, next) {
+  const { catId } = req.params
+
   if (!req.file) {
     res.status(400).json(boom.internal('file is required', err))
     return next(err)
   }
 
   catsStorage
-    .uploadCatImage(req.file.filename, req.params.id)
+    .uploadCatImage(req.file.filename, catId)
     .then(() => res.json({ fileUrl: '/photos/' + req.file.filename }))
-    .catch(err =>
-      res.status(500).json(boom.internal('unable to insert db', err))
-    )
+    .catch(err => {
+      res.status(500).json(boom.internal('unable to insert db', err.stack || err.message))
+    })
 }
 
 function getCatImages(req, res) {
-  const catId = req.params.catId
+  const { catId } = req.params
 
   if (isEmpty(catId)) {
     return res.status(400).json(boom.badRequest('image id is absent'))
@@ -301,8 +303,62 @@ function getCatImages(req, res) {
       return res.json({ images: images })
     })
     .catch(err =>
-      res.status(500).json(boom.internal('unable to find image', err))
+      res.status(500).json(boom.internal('unable to find image', err.stack || err.message))
     )
+}
+
+function getAppVersion(req, res) {
+  res.json({
+    build: process.env.BUILD_NUMBER,
+  })
+}
+
+
+/**
+ * Установка лайка коту
+ * @param req
+ * @param res
+ */
+function setLike(req, res) {
+  const { catId } = req.params
+
+  if (isEmpty(catId)) {
+    return res.status(400).json(boom.badRequest('cat id is absent'))
+  }
+
+  catsStorage.plusLike(catId)
+    .then(() => {
+      res.status(200).send('OK')
+    })
+    .catch(err => {
+      console.log('Error: set like', err)
+
+      res.status(500).json(boom.internal('Error set likes', err))
+    })
+}
+
+/**
+ * Удаление лайка у кота
+ * @param req
+ * @param res
+ * @returns {*|Promise<any>}
+ */
+function deleteLike(req, res) {
+  const { catId } = req.params
+
+  if (isEmpty(catId)) {
+    return res.status(400).json(boom.badRequest('cat id is absent'))
+  }
+
+  catsStorage.minusLike(catId)
+    .then(() => {
+      res.status(200).send('OK')
+    })
+    .catch(err => {
+      console.log('Error: delete like', err)
+
+      res.status(500).json(boom.internal('Error delete likes', err))
+    })
 }
 
 module.exports = {
@@ -316,4 +372,7 @@ module.exports = {
   uploadCatImage,
   getCatImages,
   getAllCats,
+  getAppVersion,
+  setLike,
+  deleteLike,
 }

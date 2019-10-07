@@ -1,5 +1,6 @@
 const { Pool } = require('pg')
 const { pgUser, pgPass, pgDb, pgHost } = require('./configs.js')
+const { logger } = require('./logger')
 
 const pool = new Pool({
   user: pgUser,
@@ -56,7 +57,8 @@ function findCatsByParams(searchParams) {
   const catName = searchParams.name
   const genderFilter = searchParams.gender ? ` AND gender = '${searchParams.gender}'` : ''
 
-  console.log(searchParams.gender)
+  logger.info(`searching cats by name: ${catName} and gender: ${searchParams.gender}`)
+
   return pool
     .query(
       `SELECT * FROM Cats WHERE name ILIKE $1${genderFilter}`,
@@ -153,6 +155,24 @@ function getCatImages(catId) {
     })
 }
 
+/**
+ * Добавление лайка коту
+ * @param catId
+ * @returns {*|query|void|Promise<PermissionStatus>}
+ */
+function plusLike(catId) {
+  return pool.query('UPDATE Cats SET likes = likes + 1 WHERE id = $1', [catId])
+}
+
+/**
+ * Удаление лайка коту
+ * @param catId
+ * @returns {*|query|void|Promise<PermissionStatus>}
+ */
+function minusLike(catId) {
+  return pool.query('UPDATE Cats SET likes = likes - 1 WHERE id = $1', [catId])
+}
+
 module.exports = {
   addCats,
   findCatsByParams,
@@ -163,4 +183,6 @@ module.exports = {
   uploadCatImage,
   getCatImages,
   allCats,
+  plusLike,
+  minusLike,
 }

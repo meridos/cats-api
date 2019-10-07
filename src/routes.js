@@ -13,12 +13,19 @@ const {
   uploadCatImage,
   getCatImages,
   getAllCats,
+  getAppVersion,
+  getAllCats,
+  setLike,
+  deleteLike,
 } = require('./cats-controller')
 const { swaggerSpec } = require('./swagger-controller')
 const { serverPort } = require('./configs')
 const { upload } = require('./multer')
+const { expressPino } = require('./logger')
 
 const app = express()
+
+app.use(expressPino)
 app.use(bodyParser.json())
 app.use('/photos', express.static('./public/photos'))
 
@@ -294,12 +301,12 @@ app.get('/cats/all', getAllCats)
 /**
  * @swagger
  *
- * /cats/{id}/upload:
+ * /cats/{catId}/upload:
  *   post:
  *     description: Добавление изображения кота
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: catId
  *         schema:
  *           type: integer
  *         required: true
@@ -324,7 +331,7 @@ app.get('/cats/all', getAllCats)
  *                 fileUrl:
  *                   type: string
  */
-app.post('/cats/:id/upload', upload.single('file'), uploadCatImage)
+app.post('/cats/:catId/upload', upload.single('file'), uploadCatImage)
 
 /**
  * @swagger
@@ -355,6 +362,73 @@ app.post('/cats/:id/upload', upload.single('file'), uploadCatImage)
  *                     type: string
  */
 app.get('/cats/:catId/photos', getCatImages)
+
+/**
+ * @swagger
+ *
+ * /version:
+ *   get:
+ *     description: Получение версии проекта
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: версия проекта
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 build:
+ *                   type: number
+ */
+app.get('/version', getAppVersion)
+
+/**
+ * @swagger
+ *
+ * /cats/{catId}/like:
+ *   post:
+ *     description: Добавление лайка коту
+ *     parameters:
+ *       - in: path
+ *         name: catId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Id кота
+ *     responses:
+ *       200:
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *               example: OK
+ */
+app.post('/cats/:catId/like', setLike)
+
+/**
+ * @swagger
+ *
+ * /cats/{catId}/like:
+ *   delete:
+ *     description: Удаление лайка у кота
+ *     parameters:
+ *       - in: path
+ *         name: catId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Id кота
+ *     responses:
+ *       200:
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *               example: OK
+ */
+app.delete('/cats/:catId/like', deleteLike)
 
 app.delete('/cats/delete-by-name', deleteCatByName)
 app.use('/api-docs-ui', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
