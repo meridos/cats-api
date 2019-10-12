@@ -69,7 +69,7 @@ function searchCatsByNamePattern(req, res) {
 function addCats(req, res) {
   const { cats } = req.body
   const nameIsEmpty = ({ name }) => isEmpty(name) && 'Имя не может быть пустым'
-  const nameIsTooLong = ({ name }) => name.length > 35 && 'Имя не может превышать длину 35 символов'
+  const nameIsTooLong = ({ name }) => name.length > 35 && 'Имя не может быть длиннее 35 символов'
 
   req.log.info(`adding cats: ${JSON.stringify(cats)}`)
 
