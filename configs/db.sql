@@ -29,3 +29,7 @@ CREATE TABLE images (
    references cats ("id")
     on delete cascade
 );
+
+-- Bug (gender):
+UPDATE cats SET gender = 'unisex' WHERE gender IS NULL;
+ALTER TABLE cats ALTER COLUMN gender SET NOT NULL;
