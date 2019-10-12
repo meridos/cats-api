@@ -68,17 +68,21 @@ function searchCatsByNamePattern(req, res) {
  */
 function addCats(req, res) {
   const { cats } = req.body
+  const nameIsEmpty = ({ name }) => isEmpty(name) && 'Имя не может быть пустым'
+  const nameIsTooLong = ({ name }) => name.length > 35 && 'Имя не может превышать длину 35 символов'
 
   req.log.info(`adding cats: ${JSON.stringify(cats)}`)
 
   if (isEmpty(cats)) {
-    return res.status(400).json(boom.badRequest('cats is absent'))
+    return res.status(400).json(boom.badRequest('Передан пустой список имён'))
   }
 
-  for (let i = 0; i < cats.length; i++) {
-    if (isEmpty(cats[i].name)) {
-      return res.status(400).json(boom.badRequest('cat name is absent'))
-    }
+  const validError = cats.reduce((errorMessage, cat) => errorMessage ||
+    nameIsEmpty(cat) || nameIsTooLong(cat)
+    || null, null)
+
+  if (validError) {
+    return res.status(400).json(boom.badRequest(validError))
   }
 
   Promise.all(cats.map(cat => validateName(cat.name)))
