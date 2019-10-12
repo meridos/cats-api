@@ -145,9 +145,9 @@ function uploadCatImage(image_link, cat_id) {
  */
 function getCatImages(catId) {
   return pool
-    .query('SELECT Link FROM Images WHERE id_cat = $1', [catId])
+    .query('SELECT Link FROM Images WHERE id_cat = $1 ORDER BY id DESC', [catId])
     .then(selectResult => {
-      if (selectResult.rows.length == 0) {
+      if (selectResult.rows.length === 0) {
         return null
       }
 
