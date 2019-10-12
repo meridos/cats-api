@@ -86,6 +86,11 @@ function addCats(req, res) {
   }
 
   Promise.all(cats.map(cat => validateName(cat.name)))
+    .catch(err => {
+      res
+        .status(400)
+        .json(boom.badRequest(err && err.message || ''))
+    })
     .then(() => catsStorage.addCats(cats))
     .then(storedCats =>
       res.json({
