@@ -36,5 +36,5 @@ ALTER TABLE Cats_Validations ADD COLUMN type Validation_Type NOT NULL DEFAULT 's
 
 INSERT INTO Cats_Validations (description, regex, type) VALUES
     ('Цифры не принимаются!', '^\D*$', 'add'),
-    ('Из спецсимволов можно только тире и только посередине имени', '^([\d\wа-яА-Я]+[-\s][\d\wа-яА-Я]+)$', 'add'),
+    ('Из спецсимволов можно только тире и только посередине имени', '^([\d\wа-яА-Я]+[-\s]?[\d\wа-яА-Я]+)$', 'add'),
     ('Только имена на русском!', '^[а-яА-Я\s-]*$', 'add');
