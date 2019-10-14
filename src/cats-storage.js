@@ -125,7 +125,16 @@ function saveCatDescription(catId, catDescription) {
  */
 function findCatsValidationRules() {
   return pool
-    .query('SELECT * FROM Cats_Validations')
+    .query('SELECT * FROM Cats_Validations WHERE type = $1', ['search'])
+    .then(selectResult => selectResult.rows)
+}
+
+/**
+ * Поиск правил валидации в БД для добавляемых имен
+ */
+function findAddingCatsValidationRules() {
+  return pool
+    .query('SELECT * FROM Cats_Validations WHERE type = $1', ['add'])
     .then(selectResult => selectResult.rows)
 }
 
@@ -155,6 +164,21 @@ function getCatImages(catId) {
     })
 }
 
+/**
+ * Получение человеческой ошибки от БД по коду
+ * @param {string} errCode
+ * @returns {string|null}
+ */
+function getErrorText(errCode) {
+  switch (errCode) {
+    case '23505':
+      return `Такое значение уже существует`;
+    default:
+      return null;
+  }
+}
+
+
 module.exports = {
   addCats,
   findCatsByParams,
@@ -162,7 +186,9 @@ module.exports = {
   findCatById,
   saveCatDescription,
   findCatsValidationRules,
+  findAddingCatsValidationRules,
   uploadCatImage,
   getCatImages,
   allCats,
+  getErrorText,
 }

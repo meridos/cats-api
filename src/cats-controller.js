@@ -85,7 +85,9 @@ function addCats(req, res) {
     return res.status(400).json(boom.badRequest(validError))
   }
 
-  Promise.all(cats.map(cat => validateName(cat.name)))
+  const catsNames = cats.map(({name}) => name)
+
+  Promise.all(cats.map(cat => validateAddingNames(catsNames)))
     .catch(err => {
       res
         .status(400)
@@ -98,6 +100,13 @@ function addCats(req, res) {
       })
     )
     .catch(err => {
+      const textError = catsStorage.getErrorText(err.code)
+
+      if (textError) {
+        return res
+          .json(boom.badData(textError))
+      }
+
       res
         .status(500)
         .json(boom.internal('unable to save cats', err.stack || err.message))
@@ -276,6 +285,28 @@ function validateName(name) {
   })
 }
 
+/**
+ * Валидация добавляемых имен
+ * @param names
+ * @returns {*|PromiseLike<T>|Promise<T>}
+ */
+function validateAddingNames(names) {
+  return catsStorage.findAddingCatsValidationRules().then(validationRules => {
+    names.forEach(name => {
+      validationRules.forEach(({description, regex}) => {
+        const validationRegex = new RegExp(regex)
+
+        if (name.search(validationRegex) === -1) {
+          console.error(description)
+          throw new Error(description)
+        }
+      })
+    })
+
+    return null
+  })
+}
+
 function deleteCatByName(req, res) {}
 
 /**
@@ -319,7 +350,6 @@ function getAppVersion(req, res) {
     build: process.env.BUILD_NUMBER,
   })
 }
-
 
 module.exports = {
   searchCatsByParams,
