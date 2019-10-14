@@ -14,9 +14,10 @@ const {
   getCatImages,
   getAllCats,
   getAppVersion,
-  getAllCats,
   setLike,
   deleteLike,
+  setDislike,
+  deleteDislike,
 } = require('./cats-controller')
 const { swaggerSpec } = require('./swagger-controller')
 const { serverPort } = require('./configs')
@@ -429,6 +430,52 @@ app.post('/cats/:catId/like', setLike)
  *               example: OK
  */
 app.delete('/cats/:catId/like', deleteLike)
+
+/**
+ * @swagger
+ *
+ * /cats/{catId}/like:
+ *   post:
+ *     description: Добавление дизлайка коту
+ *     parameters:
+ *       - in: path
+ *         name: catId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Id кота
+ *     responses:
+ *       200:
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *               example: OK
+ */
+app.post('/cats/:catId/dislike', setDislike)
+
+/**
+ * @swagger
+ *
+ * /cats/{catId}/like:
+ *   delete:
+ *     description: Удаление дизлайка у кота
+ *     parameters:
+ *       - in: path
+ *         name: catId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Id кота
+ *     responses:
+ *       200:
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *               example: OK
+ */
+app.delete('/cats/:catId/dislike', deleteDislike)
 
 app.delete('/cats/delete-by-name', deleteCatByName)
 app.use('/api-docs-ui', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
