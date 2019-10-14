@@ -40,11 +40,11 @@ function addCats(cats) {
  * Возвращаем всех котов
  */
 function allCats(gender) {
-  const queryAll = 'SELECT * FROM Cats'
-  const queryWithOrder = `SELECT * FROM Cats WHERE gender = '${gender}'`
+  const queryAll = 'SELECT * FROM Cats ORDER BY LOWER(name)'
+  const queryWithGender = `SELECT * FROM Cats WHERE gender = '${gender}' ORDER BY LOWER(name)`
 
   return pool
-    .query(gender ? queryWithOrder : queryAll)
+    .query(gender ? queryWithGender : queryAll)
     .then(selectResult => selectResult.rows)
 }
 
@@ -61,7 +61,7 @@ function findCatsByParams(searchParams) {
 
   return pool
     .query(
-      `SELECT * FROM Cats WHERE name ILIKE $1${genderFilter}`,
+      `SELECT * FROM Cats WHERE name ILIKE $1${genderFilter} ORDER BY LOWER(name)`,
       [`%${catName}%`],
     )
     .then(selectResult => selectResult.rows)
