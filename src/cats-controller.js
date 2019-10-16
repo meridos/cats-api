@@ -68,20 +68,31 @@ function searchCatsByNamePattern(req, res) {
  */
 function addCats(req, res) {
   const { cats } = req.body
+  const nameIsEmpty = ({ name }) => isEmpty(name) && 'Имя не может быть пустым'
+  const nameIsTooLong = ({ name }) => name.length > 35 && 'Имя не может быть длиннее 35 символов'
 
   req.log.info(`adding cats: ${JSON.stringify(cats)}`)
 
   if (isEmpty(cats)) {
-    return res.status(400).json(boom.badRequest('cats is absent'))
+    return res.status(400).json(boom.badRequest('Передан пустой список имён'))
   }
 
-  for (let i = 0; i < cats.length; i++) {
-    if (isEmpty(cats[i].name)) {
-      return res.status(400).json(boom.badRequest('cat name is absent'))
-    }
+  const validError = cats.reduce((errorMessage, cat) => errorMessage ||
+    nameIsEmpty(cat) || nameIsTooLong(cat)
+    || null, null)
+
+  if (validError) {
+    return res.status(400).json(boom.badRequest(validError))
   }
 
-  Promise.all(cats.map(cat => validateName(cat.name)))
+  const catsNames = cats.map(({name}) => name)
+
+  Promise.all(cats.map(cat => validateAddingNames(catsNames)))
+    .catch(err => {
+      res
+        .status(400)
+        .json(boom.badRequest(err && err.message || ''))
+    })
     .then(() => catsStorage.addCats(cats))
     .then(storedCats =>
       res.json({
@@ -89,6 +100,13 @@ function addCats(req, res) {
       })
     )
     .catch(err => {
+      const textError = catsStorage.getErrorText(err.code)
+
+      if (textError) {
+        return res
+          .json(boom.badData(textError))
+      }
+
       res
         .status(500)
         .json(boom.internal('unable to save cats', err.stack || err.message))
@@ -267,6 +285,28 @@ function validateName(name) {
   })
 }
 
+/**
+ * Валидация добавляемых имен
+ * @param names
+ * @returns {*|PromiseLike<T>|Promise<T>}
+ */
+function validateAddingNames(names) {
+  return catsStorage.findAddingCatsValidationRules().then(validationRules => {
+    names.forEach(name => {
+      validationRules.forEach(({description, regex}) => {
+        const validationRegex = new RegExp(regex)
+
+        if (name.search(validationRegex) === -1) {
+          console.error(description)
+          throw new Error(description)
+        }
+      })
+    })
+
+    return null
+  })
+}
+
 function deleteCatByName(req, res) {}
 
 /**
@@ -310,7 +350,6 @@ function getAppVersion(req, res) {
     build: process.env.BUILD_NUMBER,
   })
 }
-
 
 module.exports = {
   searchCatsByParams,

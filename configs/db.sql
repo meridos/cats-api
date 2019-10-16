@@ -33,3 +33,12 @@ CREATE TABLE images (
 -- Bug (gender):
 UPDATE cats SET gender = 'unisex' WHERE gender IS NULL;
 ALTER TABLE cats ALTER COLUMN gender SET NOT NULL;
+
+-- Bug: add validator for insert name
+CREATE TYPE Validation_Type AS ENUM ('search', 'add');
+ALTER TABLE Cats_Validations ADD COLUMN type Validation_Type NOT NULL DEFAULT 'search';
+
+INSERT INTO Cats_Validations (description, regex, type) VALUES
+    ('Цифры не принимаются!', '^\D*$', 'add'),
+    ('Из спецсимволов можно только тире и только посередине имени', '^([\d\wа-яА-Я]+[-\s]?[\d\wа-яА-Я]+)$', 'add'),
+    ('Только имена на русском!', '^[а-яА-Я\s-]*$', 'add');
