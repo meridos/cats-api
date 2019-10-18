@@ -361,6 +361,53 @@ function deleteLike(req, res) {
     })
 }
 
+/**
+ * Установка дизлайка коту
+ * @param req
+ * @param res
+ */
+function setDislike(req, res) {
+  const { catId } = req.params
+
+  if (isEmpty(catId)) {
+    return res.status(400).json(boom.badRequest('cat id is absent'))
+  }
+
+  catsStorage.plusDislike(catId)
+    .then(() => {
+      res.status(200).send('OK')
+    })
+    .catch(err => {
+      console.log('Error: set dislike', err)
+
+      res.status(500).json(boom.internal('Error set dislikes', err))
+    })
+}
+
+/**
+ * Удаление дизлайка у кота
+ * @param req
+ * @param res
+ * @returns {*|Promise<any>}
+ */
+function deleteDislike(req, res) {
+  const { catId } = req.params
+
+  if (isEmpty(catId)) {
+    return res.status(400).json(boom.badRequest('cat id is absent'))
+  }
+
+  catsStorage.minusDislike(catId)
+    .then(() => {
+      res.status(200).send('OK')
+    })
+    .catch(err => {
+      console.log('Error: delete dislike', err)
+
+      res.status(500).json(boom.internal('Error delete dislikes', err))
+    })
+}
+
 module.exports = {
   searchCatsByParams,
   searchCatsByNamePattern,
@@ -375,4 +422,6 @@ module.exports = {
   getAppVersion,
   setLike,
   deleteLike,
+  setDislike,
+  deleteDislike,
 }
