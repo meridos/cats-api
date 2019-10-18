@@ -434,7 +434,7 @@ app.delete('/cats/:catId/like', deleteLike)
 /**
  * @swagger
  *
- * /cats/{catId}/like:
+ * /cats/{catId}/dislike:
  *   post:
  *     description: Добавление дизлайка коту
  *     parameters:
@@ -457,7 +457,7 @@ app.post('/cats/:catId/dislike', setDislike)
 /**
  * @swagger
  *
- * /cats/{catId}/like:
+ * /cats/{catId}/dislike:
  *   delete:
  *     description: Удаление дизлайка у кота
  *     parameters:
