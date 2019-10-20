@@ -173,6 +173,17 @@ function minusLike(catId) {
   return pool.query('UPDATE Cats SET likes = likes - 1 WHERE id = $1', [catId])
 }
 
+/**
+ * Список котов с наибольшим количеством лайков
+ * @param limit
+ * @returns {*|query|void|Promise<PermissionStatus>}
+ */
+function getLikesRating(limit = 10) {
+  limit = Number(limit) || 10;
+
+  return pool.query(`SELECT name, likes FROM cats ORDER BY likes DESC LIMIT ${limit}`)
+}
+
 module.exports = {
   addCats,
   findCatsByParams,
@@ -185,4 +196,5 @@ module.exports = {
   allCats,
   plusLike,
   minusLike,
+  getLikesRating,
 }

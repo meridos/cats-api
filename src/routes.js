@@ -14,9 +14,9 @@ const {
   getCatImages,
   getAllCats,
   getAppVersion,
-  getAllCats,
   setLike,
   deleteLike,
+  getLakesRating,
 } = require('./cats-controller')
 const { swaggerSpec } = require('./swagger-controller')
 const { serverPort } = require('./configs')
@@ -429,6 +429,33 @@ app.post('/cats/:catId/like', setLike)
  *               example: OK
  */
 app.delete('/cats/:catId/like', deleteLike)
+
+/**
+ * @swagger
+ *
+ * /cats/likes-rating:
+ *   get:
+ *     description: Получение списка ТОП-10 лайков
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: список имен с лайками
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   name:
+ *                     type: string
+ *                     require: true
+ *                   likes:
+ *                     type: number
+ *                     require: true
+ */
+app.get('/cats/likes-rating', getLakesRating)
 
 app.delete('/cats/delete-by-name', deleteCatByName)
 app.use('/api-docs-ui', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
