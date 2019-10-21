@@ -155,6 +155,64 @@ function getCatImages(catId) {
     })
 }
 
+/**
+ * Добавление лайка коту
+ * @param catId
+ * @returns {*|query|void|Promise<PermissionStatus>}
+ */
+function plusLike(catId) {
+  return pool.query('UPDATE Cats SET likes = likes + 1 WHERE id = $1', [catId])
+}
+
+/**
+ * Удаление лайка коту
+ * @param catId
+ * @returns {*|query|void|Promise<PermissionStatus>}
+ */
+function minusLike(catId) {
+  return pool.query('UPDATE Cats SET likes = likes - 1 WHERE id = $1', [catId])
+}
+
+/**
+ * Добавление дизлайка коту
+ * @param catId
+ * @returns {*|query|void|Promise<PermissionStatus>}
+ */
+function plusDislike(catId) {
+  return pool.query('UPDATE Cats SET dislikes = dislikes + 1 WHERE id = $1', [catId])
+}
+
+/**
+ * Удаление дизлайка коту
+ * @param catId
+ * @returns {*|query|void|Promise<PermissionStatus>}
+ */
+function minusDislike(catId) {
+  return pool.query('UPDATE Cats SET dislikes = dislikes - 1 WHERE id = $1', [catId])
+}
+
+/**
+ * Список котов с наибольшим количеством лайков
+ * @param limit
+ * @returns {*|query|void|Promise<PermissionStatus>}
+ */
+function getLikesRating(limit = 10) {
+  limit = Number(limit) || 10;
+
+  return pool.query(`SELECT name, likes FROM cats ORDER BY likes DESC, LOWER(name) LIMIT ${limit}`)
+}
+
+/**
+ * Список котов с наибольшим количеством дизлайков
+ * @param limit
+ * @returns {*|query|void|Promise<PermissionStatus>}
+ */
+function getDislikesRating(limit = 10) {
+  limit = Number(limit) || 10;
+
+  return pool.query(`SELECT name, dislikes FROM cats ORDER BY dislikes DESC, LOWER(name) LIMIT ${limit}`)
+}
+
 module.exports = {
   addCats,
   findCatsByParams,
@@ -165,4 +223,10 @@ module.exports = {
   uploadCatImage,
   getCatImages,
   allCats,
+  plusLike,
+  minusLike,
+  plusDislike,
+  minusDislike,
+  getLikesRating,
+  getDislikesRating,
 }
