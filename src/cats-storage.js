@@ -202,6 +202,17 @@ function getLikesRating(limit = 10) {
   return pool.query(`SELECT name, likes FROM cats ORDER BY likes DESC, LOWER(name) LIMIT ${limit}`)
 }
 
+/**
+ * Список котов с наибольшим количеством дизлайков
+ * @param limit
+ * @returns {*|query|void|Promise<PermissionStatus>}
+ */
+function getDislikesRating(limit = 10) {
+  limit = Number(limit) || 10;
+
+  return pool.query(`SELECT name, dislikes FROM cats ORDER BY dislikes DESC, LOWER(name) LIMIT ${limit}`)
+}
+
 module.exports = {
   addCats,
   findCatsByParams,
@@ -217,4 +228,5 @@ module.exports = {
   plusDislike,
   minusDislike,
   getLikesRating,
+  getDislikesRating,
 }

@@ -409,13 +409,28 @@ function deleteDislike(req, res) {
  * @param req
  * @param res
  */
-function getLakesRating(req, res) {
+function getLikesRating(req, res) {
   catsStorage.getLikesRating()
     .then(data => {
       res.status(200).json(data.rows);
     })
     .catch(err => {
       res.status(500).json(boom.internal('Error get likes rating', err.stack || err.message))
+    })
+}
+
+/**
+ * Список топ-10 дизлайков имен
+ * @param req
+ * @param res
+ */
+function getDislikesRating(req, res) {
+  catsStorage.getDislikesRating()
+    .then(data => {
+      res.status(200).json(data.rows);
+    })
+    .catch(err => {
+      res.status(500).json(boom.internal('Error get dislikes rating', err.stack || err.message))
     })
 }
 
@@ -435,5 +450,6 @@ module.exports = {
   deleteLike,
   setDislike,
   deleteDislike,
-  getLakesRating,
+  getLikesRating,
+  getDislikesRating,
 }
