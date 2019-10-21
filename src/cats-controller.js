@@ -331,8 +331,6 @@ function setLike(req, res) {
       res.status(200).send('OK')
     })
     .catch(err => {
-      console.log('Error: set like', err)
-
       res.status(500).json(boom.internal('Error set likes', err))
     })
 }
@@ -355,8 +353,6 @@ function deleteLike(req, res) {
       res.status(200).send('OK')
     })
     .catch(err => {
-      console.log('Error: delete like', err)
-
       res.status(500).json(boom.internal('Error delete likes', err))
     })
 }
@@ -408,6 +404,36 @@ function deleteDislike(req, res) {
     })
 }
 
+/**
+ * Список топ-10 лайков имен
+ * @param req
+ * @param res
+ */
+function getLikesRating(req, res) {
+  catsStorage.getLikesRating()
+    .then(data => {
+      res.status(200).json(data.rows);
+    })
+    .catch(err => {
+      res.status(500).json(boom.internal('Error get likes rating', err.stack || err.message))
+    })
+}
+
+/**
+ * Список топ-10 дизлайков имен
+ * @param req
+ * @param res
+ */
+function getDislikesRating(req, res) {
+  catsStorage.getDislikesRating()
+    .then(data => {
+      res.status(200).json(data.rows);
+    })
+    .catch(err => {
+      res.status(500).json(boom.internal('Error get dislikes rating', err.stack || err.message))
+    })
+}
+
 module.exports = {
   searchCatsByParams,
   searchCatsByNamePattern,
@@ -424,4 +450,6 @@ module.exports = {
   deleteLike,
   setDislike,
   deleteDislike,
+  getLikesRating,
+  getDislikesRating,
 }

@@ -18,6 +18,8 @@ const {
   deleteLike,
   setDislike,
   deleteDislike,
+  getLikesRating,
+  getDislikesRating,
 } = require('./cats-controller')
 const { swaggerSpec } = require('./swagger-controller')
 const { serverPort } = require('./configs')
@@ -476,6 +478,60 @@ app.post('/cats/:catId/dislike', setDislike)
  *               example: OK
  */
 app.delete('/cats/:catId/dislike', deleteDislike)
+
+/**
+ * @swagger
+ *
+ * /cats/likes-rating:
+ *   get:
+ *     description: Получение списка ТОП-10 лайков
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: список имен с лайками
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   name:
+ *                     type: string
+ *                     require: true
+ *                   likes:
+ *                     type: number
+ *                     require: true
+ */
+app.get('/cats/likes-rating', getLikesRating)
+
+/**
+ * @swagger
+ *
+ * /cats/dislikes-rating:
+ *   get:
+ *     description: Получение списка ТОП-10 дизлайков
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: список имен с дизлайками
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   name:
+ *                     type: string
+ *                     require: true
+ *                   dislikes:
+ *                     type: number
+ *                     require: true
+ */
+app.get('/cats/dislikes-rating', getDislikesRating)
 
 app.delete('/cats/delete-by-name', deleteCatByName)
 app.use('/api-docs-ui', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
