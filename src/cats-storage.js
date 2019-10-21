@@ -181,7 +181,7 @@ function minusLike(catId) {
 function getLikesRating(limit = 10) {
   limit = Number(limit) || 10;
 
-  return pool.query(`SELECT name, likes FROM cats ORDER BY likes DESC LIMIT ${limit}`)
+  return pool.query(`SELECT name, likes FROM cats ORDER BY likes DESC, LOWER(name) LIMIT ${limit}`)
 }
 
 module.exports = {
