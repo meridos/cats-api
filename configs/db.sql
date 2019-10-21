@@ -30,6 +30,15 @@ CREATE TABLE images (
     on delete cascade
 );
 
+-- Feature 2-6: Add likes and dislikes names
+ALTER TABLE Cats
+    ADD COLUMN likes SMALLINT NOT NULL DEFAULT 0
+    CONSTRAINT likes_positive CHECK (likes >= 0);
+ALTER TABLE Cats
+    ADD COLUMN dislikes SMALLINT NOT NULL DEFAULT 0
+    CONSTRAINT dislikes_positive CHECK (dislikes >= 0);
+
+
 -- Bug (gender):
 UPDATE cats SET gender = 'unisex' WHERE gender IS NULL;
 ALTER TABLE cats ALTER COLUMN gender SET NOT NULL;
