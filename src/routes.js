@@ -184,11 +184,8 @@ app.get('/cats/get-by-id', getCatById)
  *                 description: Имя кота
  *                 type: string
  *                 required: true
- *               genders:
- *                 description: Пол кота
- *                 type: array
- *                 items:
- *                   $ref: '#/definitions/GenderEnum'
+ *               gender:
+ *                 $ref: '#/definitions/GenderEnum'
  *     responses:
  *       200:
  *         description: Имена по группам алфавита с их количеством
