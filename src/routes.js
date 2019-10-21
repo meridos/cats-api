@@ -43,16 +43,22 @@ app.use('/photos', express.static('./public/photos'))
  * definitions:
  *   GenderEnum:
  *     type: string
+ *     required: true
+ *     description: Пол кота
  *     enum: [male, female, unisex]
  *   Cat:
  *     type: object
  *     properties:
  *       id:
  *         type: number
+ *         required: true
  *       name:
  *         type: string
+ *         description: Имя кота
+ *         required: true
  *       description:
  *         type: string
+ *         description: Описание имени кота
  *       tags:
  *         type: array
  *         items:
@@ -61,6 +67,8 @@ app.use('/photos', express.static('./public/photos'))
  *         $ref: '#/definitions/GenderEnum'
  *       likes:
  *         type: number
+ *         description: Количество лайков у имени
+ *         required: true
  *
  *   Groups:
  *     type: object
@@ -72,10 +80,15 @@ app.use('/photos', express.static('./public/photos'))
  *           properties:
  *             title:
  *               type: string
+ *               description: Заголовок группы имён (первая буква имени)
+ *               required: true
  *             count:
  *               type: number
+ *               description: Количество имён в группе
+ *               required: true
  *             cats:
  *               type: array
+ *               required: true
  *               items:
  *                 $ref: '#/definitions/Cat'
  */
@@ -106,7 +119,6 @@ app.use('/photos', express.static('./public/photos'))
  *                       type: string
  *                       required: true
  *                     gender:
- *                       description: Пол кота
  *                       $ref: '#/definitions/GenderEnum'
  *                     description:
  *                       description: Описание кота
@@ -172,11 +184,8 @@ app.get('/cats/get-by-id', getCatById)
  *                 description: Имя кота
  *                 type: string
  *                 required: true
- *               genders:
- *                 description: Пол кота
- *                 type: array
- *                 items:
- *                   $ref: '#/definitions/GenderEnum'
+ *               gender:
+ *                 $ref: '#/definitions/GenderEnum'
  *     responses:
  *       200:
  *         description: Имена по группам алфавита с их количеством

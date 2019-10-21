@@ -40,11 +40,11 @@ function addCats(cats) {
  * Возвращаем всех котов
  */
 function allCats(gender) {
-  const queryAll = 'SELECT * FROM Cats'
-  const queryWithOrder = `SELECT * FROM Cats WHERE gender = '${gender}'`
+  const queryAll = 'SELECT * FROM Cats ORDER BY LOWER(name)'
+  const queryWithGender = `SELECT * FROM Cats WHERE gender = '${gender}' ORDER BY LOWER(name)`
 
   return pool
-    .query(gender ? queryWithOrder : queryAll)
+    .query(gender ? queryWithGender : queryAll)
     .then(selectResult => selectResult.rows)
 }
 
@@ -61,7 +61,7 @@ function findCatsByParams(searchParams) {
 
   return pool
     .query(
-      `SELECT * FROM Cats WHERE name ILIKE $1${genderFilter}`,
+      `SELECT * FROM Cats WHERE name ILIKE $1${genderFilter} ORDER BY LOWER(name)`,
       [`%${catName}%`],
     )
     .then(selectResult => selectResult.rows)
@@ -125,7 +125,16 @@ function saveCatDescription(catId, catDescription) {
  */
 function findCatsValidationRules() {
   return pool
-    .query('SELECT * FROM Cats_Validations')
+    .query('SELECT * FROM Cats_Validations WHERE type = $1', ['search'])
+    .then(selectResult => selectResult.rows)
+}
+
+/**
+ * Поиск правил валидации в БД для добавляемых имен
+ */
+function findAddingCatsValidationRules() {
+  return pool
+    .query('SELECT * FROM Cats_Validations WHERE type = $1', ['add'])
     .then(selectResult => selectResult.rows)
 }
 
@@ -213,6 +222,21 @@ function getDislikesRating(limit = 10) {
   return pool.query(`SELECT name, dislikes FROM cats ORDER BY dislikes DESC, LOWER(name) LIMIT ${limit}`)
 }
 
+/**
+ * Получение человеческой ошибки от БД по коду
+ * @param {string} errCode
+ * @returns {string|null}
+ */
+function getErrorText(errCode) {
+  switch (errCode) {
+    case '23505':
+      return `Такое значение уже существует`;
+    default:
+      return null;
+  }
+}
+
+
 module.exports = {
   addCats,
   findCatsByParams,
@@ -220,6 +244,7 @@ module.exports = {
   findCatById,
   saveCatDescription,
   findCatsValidationRules,
+  findAddingCatsValidationRules,
   uploadCatImage,
   getCatImages,
   allCats,
@@ -229,4 +254,5 @@ module.exports = {
   minusDislike,
   getLikesRating,
   getDislikesRating,
+  getErrorText,
 }
