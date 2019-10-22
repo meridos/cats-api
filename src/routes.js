@@ -14,6 +14,12 @@ const {
   getCatImages,
   getAllCats,
   getAppVersion,
+  setLike,
+  deleteLike,
+  setDislike,
+  deleteDislike,
+  getLikesRating,
+  getDislikesRating,
 } = require('./cats-controller')
 const { swaggerSpec } = require('./swagger-controller')
 const { serverPort } = require('./configs')
@@ -37,16 +43,22 @@ app.use('/photos', express.static('./public/photos'))
  * definitions:
  *   GenderEnum:
  *     type: string
+ *     required: true
+ *     description: Пол кота
  *     enum: [male, female, unisex]
  *   Cat:
  *     type: object
  *     properties:
  *       id:
  *         type: number
+ *         required: true
  *       name:
  *         type: string
+ *         description: Имя кота
+ *         required: true
  *       description:
  *         type: string
+ *         description: Описание имени кота
  *       tags:
  *         type: array
  *         items:
@@ -55,6 +67,8 @@ app.use('/photos', express.static('./public/photos'))
  *         $ref: '#/definitions/GenderEnum'
  *       likes:
  *         type: number
+ *         description: Количество лайков у имени
+ *         required: true
  *
  *   Groups:
  *     type: object
@@ -66,10 +80,15 @@ app.use('/photos', express.static('./public/photos'))
  *           properties:
  *             title:
  *               type: string
+ *               description: Заголовок группы имён (первая буква имени)
+ *               required: true
  *             count:
  *               type: number
+ *               description: Количество имён в группе
+ *               required: true
  *             cats:
  *               type: array
+ *               required: true
  *               items:
  *                 $ref: '#/definitions/Cat'
  */
@@ -100,7 +119,6 @@ app.use('/photos', express.static('./public/photos'))
  *                       type: string
  *                       required: true
  *                     gender:
- *                       description: Пол кота
  *                       $ref: '#/definitions/GenderEnum'
  *                     description:
  *                       description: Описание кота
@@ -166,11 +184,8 @@ app.get('/cats/get-by-id', getCatById)
  *                 description: Имя кота
  *                 type: string
  *                 required: true
- *               genders:
- *                 description: Пол кота
- *                 type: array
- *                 items:
- *                   $ref: '#/definitions/GenderEnum'
+ *               gender:
+ *                 $ref: '#/definitions/GenderEnum'
  *     responses:
  *       200:
  *         description: Имена по группам алфавита с их количеством
@@ -298,12 +313,12 @@ app.get('/cats/all', getAllCats)
 /**
  * @swagger
  *
- * /cats/{id}/upload:
+ * /cats/{catId}/upload:
  *   post:
  *     description: Добавление изображения кота
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: catId
  *         schema:
  *           type: integer
  *         required: true
@@ -328,7 +343,7 @@ app.get('/cats/all', getAllCats)
  *                 fileUrl:
  *                   type: string
  */
-app.post('/cats/:id/upload', upload.single('file'), uploadCatImage)
+app.post('/cats/:catId/upload', upload.single('file'), uploadCatImage)
 
 /**
  * @swagger
@@ -380,6 +395,152 @@ app.get('/cats/:catId/photos', getCatImages)
  *                   type: number
  */
 app.get('/version', getAppVersion)
+
+/**
+ * @swagger
+ *
+ * /cats/{catId}/like:
+ *   post:
+ *     description: Добавление лайка коту
+ *     parameters:
+ *       - in: path
+ *         name: catId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Id кота
+ *     responses:
+ *       200:
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *               example: OK
+ */
+app.post('/cats/:catId/like', setLike)
+
+/**
+ * @swagger
+ *
+ * /cats/{catId}/like:
+ *   delete:
+ *     description: Удаление лайка у кота
+ *     parameters:
+ *       - in: path
+ *         name: catId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Id кота
+ *     responses:
+ *       200:
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *               example: OK
+ */
+app.delete('/cats/:catId/like', deleteLike)
+
+/**
+ * @swagger
+ *
+ * /cats/{catId}/dislike:
+ *   post:
+ *     description: Добавление дизлайка коту
+ *     parameters:
+ *       - in: path
+ *         name: catId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Id кота
+ *     responses:
+ *       200:
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *               example: OK
+ */
+app.post('/cats/:catId/dislike', setDislike)
+
+/**
+ * @swagger
+ *
+ * /cats/{catId}/dislike:
+ *   delete:
+ *     description: Удаление дизлайка у кота
+ *     parameters:
+ *       - in: path
+ *         name: catId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Id кота
+ *     responses:
+ *       200:
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *               example: OK
+ */
+app.delete('/cats/:catId/dislike', deleteDislike)
+
+/**
+ * @swagger
+ *
+ * /cats/likes-rating:
+ *   get:
+ *     description: Получение списка ТОП-10 лайков
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: список имен с лайками
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   name:
+ *                     type: string
+ *                     require: true
+ *                   likes:
+ *                     type: number
+ *                     require: true
+ */
+app.get('/cats/likes-rating', getLikesRating)
+
+/**
+ * @swagger
+ *
+ * /cats/dislikes-rating:
+ *   get:
+ *     description: Получение списка ТОП-10 дизлайков
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: список имен с дизлайками
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   name:
+ *                     type: string
+ *                     require: true
+ *                   dislikes:
+ *                     type: number
+ *                     require: true
+ */
+app.get('/cats/dislikes-rating', getDislikesRating)
 
 app.delete('/cats/delete-by-name', deleteCatByName)
 app.use('/api-docs-ui', swaggerUi.serve, swaggerUi.setup(swaggerSpec))

@@ -68,20 +68,31 @@ function searchCatsByNamePattern(req, res) {
  */
 function addCats(req, res) {
   const { cats } = req.body
+  const nameIsEmpty = ({ name }) => isEmpty(name) && 'Имя не может быть пустым'
+  const nameIsTooLong = ({ name }) => name.length > 35 && 'Имя не может быть длиннее 35 символов'
 
   req.log.info(`adding cats: ${JSON.stringify(cats)}`)
 
   if (isEmpty(cats)) {
-    return res.status(400).json(boom.badRequest('cats is absent'))
+    return res.status(400).json(boom.badRequest('Передан пустой список имён'))
   }
 
-  for (let i = 0; i < cats.length; i++) {
-    if (isEmpty(cats[i].name)) {
-      return res.status(400).json(boom.badRequest('cat name is absent'))
-    }
+  const validError = cats.reduce((errorMessage, cat) => errorMessage ||
+    nameIsEmpty(cat) || nameIsTooLong(cat)
+    || null, null)
+
+  if (validError) {
+    return res.status(400).json(boom.badRequest(validError))
   }
 
-  Promise.all(cats.map(cat => validateName(cat.name)))
+  const catsNames = cats.map(({name}) => name)
+
+  Promise.all(cats.map(cat => validateAddingNames(catsNames)))
+    .catch(err => {
+      res
+        .status(400)
+        .json(boom.badRequest(err && err.message || ''))
+    })
     .then(() => catsStorage.addCats(cats))
     .then(storedCats =>
       res.json({
@@ -89,6 +100,13 @@ function addCats(req, res) {
       })
     )
     .catch(err => {
+      const textError = catsStorage.getErrorText(err.code)
+
+      if (textError) {
+        return res
+          .json(boom.badData(textError))
+      }
+
       res
         .status(500)
         .json(boom.internal('unable to save cats', err.stack || err.message))
@@ -267,27 +285,51 @@ function validateName(name) {
   })
 }
 
+/**
+ * Валидация добавляемых имен
+ * @param names
+ * @returns {*|PromiseLike<T>|Promise<T>}
+ */
+function validateAddingNames(names) {
+  return catsStorage.findAddingCatsValidationRules().then(validationRules => {
+    names.forEach(name => {
+      validationRules.forEach(({description, regex}) => {
+        const validationRegex = new RegExp(regex)
+
+        if (name.search(validationRegex) === -1) {
+          console.error(description)
+          throw new Error(description)
+        }
+      })
+    })
+
+    return null
+  })
+}
+
 function deleteCatByName(req, res) {}
 
 /**
  * Добавление изображения коту
  */
 function uploadCatImage(req, res, next) {
+  const { catId } = req.params
+
   if (!req.file) {
     res.status(400).json(boom.internal('file is required', err))
     return next(err)
   }
 
   catsStorage
-    .uploadCatImage(req.file.filename, req.params.id)
+    .uploadCatImage(req.file.filename, catId)
     .then(() => res.json({ fileUrl: '/photos/' + req.file.filename }))
-    .catch(err =>
+    .catch(err => {
       res.status(500).json(boom.internal('unable to insert db', err.stack || err.message))
-    )
+    })
 }
 
 function getCatImages(req, res) {
-  const catId = req.params.catId
+  const { catId } = req.params
 
   if (isEmpty(catId)) {
     return res.status(400).json(boom.badRequest('image id is absent'))
@@ -312,6 +354,126 @@ function getAppVersion(req, res) {
 }
 
 
+/**
+ * Установка лайка коту
+ * @param req
+ * @param res
+ */
+function setLike(req, res) {
+  const { catId } = req.params
+
+  if (isEmpty(catId)) {
+    return res.status(400).json(boom.badRequest('cat id is absent'))
+  }
+
+  catsStorage.plusLike(catId)
+    .then(() => {
+      res.status(200).send('OK')
+    })
+    .catch(err => {
+      res.status(500).json(boom.internal('Error set likes', err))
+    })
+}
+
+/**
+ * Удаление лайка у кота
+ * @param req
+ * @param res
+ * @returns {*|Promise<any>}
+ */
+function deleteLike(req, res) {
+  const { catId } = req.params
+
+  if (isEmpty(catId)) {
+    return res.status(400).json(boom.badRequest('cat id is absent'))
+  }
+
+  catsStorage.minusLike(catId)
+    .then(() => {
+      res.status(200).send('OK')
+    })
+    .catch(err => {
+      res.status(500).json(boom.internal('Error delete likes', err))
+    })
+}
+
+/**
+ * Установка дизлайка коту
+ * @param req
+ * @param res
+ */
+function setDislike(req, res) {
+  const { catId } = req.params
+
+  if (isEmpty(catId)) {
+    return res.status(400).json(boom.badRequest('cat id is absent'))
+  }
+
+  catsStorage.plusDislike(catId)
+    .then(() => {
+      res.status(200).send('OK')
+    })
+    .catch(err => {
+      console.log('Error: set dislike', err)
+
+      res.status(500).json(boom.internal('Error set dislikes', err))
+    })
+}
+
+/**
+ * Удаление дизлайка у кота
+ * @param req
+ * @param res
+ * @returns {*|Promise<any>}
+ */
+function deleteDislike(req, res) {
+  const { catId } = req.params
+
+  if (isEmpty(catId)) {
+    return res.status(400).json(boom.badRequest('cat id is absent'))
+  }
+
+  catsStorage.minusDislike(catId)
+    .then(() => {
+      res.status(200).send('OK')
+    })
+    .catch(err => {
+      console.log('Error: delete dislike', err)
+
+      res.status(500).json(boom.internal('Error delete dislikes', err))
+    })
+}
+
+/**
+ * Список топ-10 лайков имен
+ * @param req
+ * @param res
+ */
+function getLikesRating(req, res) {
+  catsStorage.getLikesRating()
+    .then(data => {
+      res.status(200).json(data.rows);
+    })
+    .catch(err => {
+      res.status(500).json(boom.internal('Error get likes rating', err.stack || err.message))
+    })
+}
+
+/**
+ * Список топ-10 дизлайков имен
+ * @param req
+ * @param res
+ */
+function getDislikesRating(req, res) {
+  catsStorage.getDislikesRating()
+    .then(data => {
+      res.status(200).json(data.rows);
+    })
+    .catch(err => {
+      res.status(500).json(boom.internal('Error get dislikes rating', err.stack || err.message))
+    })
+}
+
 module.exports = {
   searchCatsByParams,
   searchCatsByNamePattern,
@@ -324,4 +486,10 @@ module.exports = {
   getCatImages,
   getAllCats,
   getAppVersion,
+  setLike,
+  deleteLike,
+  setDislike,
+  deleteDislike,
+  getLikesRating,
+  getDislikesRating,
 }

@@ -40,11 +40,11 @@ function addCats(cats) {
  * Возвращаем всех котов
  */
 function allCats(gender) {
-  const queryAll = 'SELECT * FROM Cats'
-  const queryWithOrder = `SELECT * FROM Cats WHERE gender = '${gender}'`
+  const queryAll = 'SELECT * FROM Cats ORDER BY LOWER(name)'
+  const queryWithGender = `SELECT * FROM Cats WHERE gender = '${gender}' ORDER BY LOWER(name)`
 
   return pool
-    .query(gender ? queryWithOrder : queryAll)
+    .query(gender ? queryWithGender : queryAll)
     .then(selectResult => selectResult.rows)
 }
 
@@ -61,7 +61,7 @@ function findCatsByParams(searchParams) {
 
   return pool
     .query(
-      `SELECT * FROM Cats WHERE name ILIKE $1${genderFilter}`,
+      `SELECT * FROM Cats WHERE name ILIKE $1${genderFilter} ORDER BY LOWER(name)`,
       [`%${catName}%`],
     )
     .then(selectResult => selectResult.rows)
@@ -125,7 +125,16 @@ function saveCatDescription(catId, catDescription) {
  */
 function findCatsValidationRules() {
   return pool
-    .query('SELECT * FROM Cats_Validations')
+    .query('SELECT * FROM Cats_Validations WHERE type = $1', ['search'])
+    .then(selectResult => selectResult.rows)
+}
+
+/**
+ * Поиск правил валидации в БД для добавляемых имен
+ */
+function findAddingCatsValidationRules() {
+  return pool
+    .query('SELECT * FROM Cats_Validations WHERE type = $1', ['add'])
     .then(selectResult => selectResult.rows)
 }
 
@@ -155,6 +164,79 @@ function getCatImages(catId) {
     })
 }
 
+/**
+ * Добавление лайка коту
+ * @param catId
+ * @returns {*|query|void|Promise<PermissionStatus>}
+ */
+function plusLike(catId) {
+  return pool.query('UPDATE Cats SET likes = likes + 1 WHERE id = $1', [catId])
+}
+
+/**
+ * Удаление лайка коту
+ * @param catId
+ * @returns {*|query|void|Promise<PermissionStatus>}
+ */
+function minusLike(catId) {
+  return pool.query('UPDATE Cats SET likes = likes - 1 WHERE id = $1', [catId])
+}
+
+/**
+ * Добавление дизлайка коту
+ * @param catId
+ * @returns {*|query|void|Promise<PermissionStatus>}
+ */
+function plusDislike(catId) {
+  return pool.query('UPDATE Cats SET dislikes = dislikes + 1 WHERE id = $1', [catId])
+}
+
+/**
+ * Удаление дизлайка коту
+ * @param catId
+ * @returns {*|query|void|Promise<PermissionStatus>}
+ */
+function minusDislike(catId) {
+  return pool.query('UPDATE Cats SET dislikes = dislikes - 1 WHERE id = $1', [catId])
+}
+
+/**
+ * Список котов с наибольшим количеством лайков
+ * @param limit
+ * @returns {*|query|void|Promise<PermissionStatus>}
+ */
+function getLikesRating(limit = 10) {
+  limit = Number(limit) || 10;
+
+  return pool.query(`SELECT name, likes FROM cats ORDER BY likes DESC, LOWER(name) LIMIT ${limit}`)
+}
+
+/**
+ * Список котов с наибольшим количеством дизлайков
+ * @param limit
+ * @returns {*|query|void|Promise<PermissionStatus>}
+ */
+function getDislikesRating(limit = 10) {
+  limit = Number(limit) || 10;
+
+  return pool.query(`SELECT name, dislikes FROM cats ORDER BY dislikes DESC, LOWER(name) LIMIT ${limit}`)
+}
+
+/**
+ * Получение человеческой ошибки от БД по коду
+ * @param {string} errCode
+ * @returns {string|null}
+ */
+function getErrorText(errCode) {
+  switch (errCode) {
+    case '23505':
+      return `Такое значение уже существует`;
+    default:
+      return null;
+  }
+}
+
+
 module.exports = {
   addCats,
   findCatsByParams,
@@ -162,7 +244,15 @@ module.exports = {
   findCatById,
   saveCatDescription,
   findCatsValidationRules,
+  findAddingCatsValidationRules,
   uploadCatImage,
   getCatImages,
   allCats,
+  plusLike,
+  minusLike,
+  plusDislike,
+  minusDislike,
+  getLikesRating,
+  getDislikesRating,
+  getErrorText,
 }
