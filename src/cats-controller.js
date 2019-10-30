@@ -92,6 +92,8 @@ function addCats(req, res) {
       res
         .status(400)
         .json(boom.badRequest(err && err.message || ''))
+
+      throw err;
     })
     .then(() => catsStorage.addCats(cats))
     .then(storedCats =>
