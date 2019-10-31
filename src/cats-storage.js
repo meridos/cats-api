@@ -88,7 +88,7 @@ function findCatByNamePattern(catName, limit) {
 
   return pool
     .query(
-      `SELECT * FROM Cats WHERE LOWER(name) LIKE LOWER ($1) ORDER BY id ASC${limitQuery}`,
+      `SELECT * FROM Cats WHERE LOWER(name) LIKE LOWER ($1) ORDER BY LOWER(name) ASC${limitQuery}`,
       [catName + '%'],
     )
     .then(selectResult => {
