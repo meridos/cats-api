@@ -95,6 +95,11 @@ function addCats(req, res) {
 
       throw err;
     })
+    .then(() => {
+      cats.forEach(cat => {
+        cat.name = formatName(cat.name)
+      })
+    })
     .then(() => catsStorage.addCats(cats))
     .then(storedCats =>
       res.json({
@@ -474,6 +479,15 @@ function getDislikesRating(req, res) {
     .catch(err => {
       res.status(500).json(boom.internal('Error get dislikes rating', err.stack || err.message))
     })
+}
+
+function formatName(name) {
+  const [delimiter] = name.match(/-|\s/) || [];
+
+  return name
+    .split(delimiter)
+    .map(part => part[0].toUpperCase() + part.substr(1).toLowerCase())
+    .join(delimiter || '');
 }
 
 module.exports = {
