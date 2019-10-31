@@ -52,9 +52,9 @@ INSERT INTO Cats_Validations (description, regex, type) VALUES
     ('Из спецсимволов можно только тире и только посередине имени', '^([\d\wа-яА-Я]+[-\s]?[\d\wа-яА-Я]+)$', 'add'),
     ('Только имена на русском!', '^[а-яА-Я\s-]*$', 'add');
 
+-- Bug: meow 127
 DELETE FROM Cats_Validations;
 
--- Bug: meow 127
 INSERT INTO Cats_Validations (description, regex, type) VALUES
     ('Цифры не принимаются!', '^\D*$', 'search'),
     ('Только имена на русском!', '^[а-яА-Я\s-]*$', 'search');
