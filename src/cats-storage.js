@@ -41,13 +41,12 @@ function addCats(cats) {
  */
 function allCats(gender) {
   const queryAll = 'SELECT * FROM Cats ORDER BY LOWER(name)'
-  const queryWithGender = `SELECT * FROM Cats WHERE gender = '${gender}' ORDER BY LOWER(name)`
+  const queryWithGender = 'SELECT * FROM Cats WHERE gender = $1 ORDER BY LOWER(name)'
 
   return pool
-    .query(gender ? queryWithGender : queryAll)
+    .query(gender ? queryWithGender : queryAll, [gender])
     .then(selectResult => selectResult.rows)
 }
-
 
 /**
  * Поиск котов по указанным параметрам в БД
