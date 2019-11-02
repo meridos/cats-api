@@ -44,7 +44,10 @@ function allCats(gender) {
   const queryWithGender = 'SELECT * FROM Cats WHERE gender = $1 ORDER BY LOWER(name)'
 
   return pool
-    .query(gender ? queryWithGender : queryAll, [gender])
+    .query(...(gender
+      ? [queryWithGender, [gender]]
+      : [queryAll]
+    ))
     .then(selectResult => selectResult.rows)
 }
 
