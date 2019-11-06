@@ -136,7 +136,7 @@ function findCatsValidationRules() {
  */
 function findAddingCatsValidationRules() {
   return pool
-    .query('SELECT * FROM Cats_Validations WHERE type = $1', ['add'])
+    .query('SELECT * FROM Cats_Validations WHERE type = $1 ORDER BY id', ['add'])
     .then(selectResult => selectResult.rows)
 }
 
