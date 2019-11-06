@@ -300,6 +300,10 @@ app.get('/cats/validation', getCatValidationRules)
  *           enum: [asc, desc]
  *         required: true
  *         description: Id кота
+ *       - in: query
+ *         name: gender
+ *         schema:
+ *           $ref: '#/definitions/GenderEnum'
  *     responses:
  *       200:
  *         description: список имен
