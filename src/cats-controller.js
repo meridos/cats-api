@@ -55,7 +55,19 @@ function searchCatsByNamePattern(req, res) {
 
   return validateName(name)
     .then(() => catsStorage.findCatByNamePattern(name, Number(limit)))
-    .then(foundCats => res.json(foundCats))
+    .then(foundCats => {
+
+      let moreResults = false;
+
+      if (foundCats.length > 10) {
+        moreResults = true;
+      }
+
+      return res.json({
+        moreResults,
+        cats: foundCats,
+      })
+    })
     .catch(err =>
       res.status(500).json(boom.internal('unable to find cats', err.stack || err.message))
     )
