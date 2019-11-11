@@ -57,15 +57,20 @@ function allCats(gender) {
  */
 function findCatsByParams(searchParams) {
   const catName = searchParams.name
-  const genderFilter = searchParams.gender ? ` AND gender = '${searchParams.gender}'` : ''
+  const catGender = searchParams.gender
 
   logger.info(`searching cats by name: ${catName} and gender: ${searchParams.gender}`)
 
+  const queryWithGender = 'SELECT * FROM Cats WHERE name ILIKE $1 AND gender = $2 ORDER BY LOWER(name)'
+  const queryWithoutGender = 'SELECT * FROM Cats WHERE name ILIKE $1 ORDER BY LOWER(name)'
+
+
   return pool
-    .query(
-      `SELECT * FROM Cats WHERE name ILIKE $1${genderFilter} ORDER BY LOWER(name)`,
-      [`%${catName}%`],
-    )
+    .query(...(catGender
+        ? [queryWithGender, [catName, catGender]]
+        : [queryWithoutGender]
+    ))
+
     .then(selectResult => selectResult.rows)
 }
 
