@@ -45,8 +45,8 @@ function allCats(gender) {
 
   return pool
     .query(...(gender
-      ? [queryWithGender, [gender]]
-      : [queryAll]
+        ? [queryWithGender, [gender]]
+        : [queryAll]
     ))
     .then(selectResult => selectResult.rows)
 }
@@ -57,15 +57,19 @@ function allCats(gender) {
  */
 function findCatsByParams(searchParams) {
   const catName = searchParams.name
-  const genderFilter = searchParams.gender ? ` AND gender = '${searchParams.gender}'` : ''
+  const catGender = searchParams.gender
 
   logger.info(`searching cats by name: ${catName} and gender: ${searchParams.gender}`)
 
+  const queryWithGender = 'SELECT * FROM Cats WHERE name ILIKE $1 AND gender = $2 ORDER BY LOWER(name)'
+  const queryWithoutGender = 'SELECT * FROM Cats WHERE name ILIKE $1 ORDER BY LOWER(name)'
+
+
   return pool
-    .query(
-      `SELECT * FROM Cats WHERE name ILIKE $1${genderFilter} ORDER BY LOWER(name)`,
-      [`%${catName}%`],
-    )
+    .query(...(catGender
+      ? [queryWithGender, [catName, catGender]]
+      : [queryWithoutGender, [catName]]
+    ))
     .then(selectResult => selectResult.rows)
 }
 
@@ -208,7 +212,7 @@ function minusDislike(catId) {
  * @returns {*|query|void|Promise<PermissionStatus>}
  */
 function getLikesRating(limit = 10) {
-  limit = Number(limit) || 10;
+  limit = Number(limit) || 10
 
   return pool.query(`SELECT name, likes FROM cats ORDER BY likes DESC, LOWER(name) LIMIT ${limit}`)
 }
@@ -219,7 +223,7 @@ function getLikesRating(limit = 10) {
  * @returns {*|query|void|Promise<PermissionStatus>}
  */
 function getDislikesRating(limit = 10) {
-  limit = Number(limit) || 10;
+  limit = Number(limit) || 10
 
   return pool.query(`SELECT name, dislikes FROM cats ORDER BY dislikes DESC, LOWER(name) LIMIT ${limit}`)
 }
@@ -232,9 +236,9 @@ function getDislikesRating(limit = 10) {
 function getErrorText(errCode) {
   switch (errCode) {
     case '23505':
-      return `Такое значение уже существует`;
+      return `Такое значение уже существует`
     default:
-      return null;
+      return null
   }
 }
 
