@@ -45,8 +45,8 @@ function allCats(gender) {
 
   return pool
     .query(...(gender
-      ? [queryWithGender, [gender]]
-      : [queryAll]
+        ? [queryWithGender, [gender]]
+        : [queryAll]
     ))
     .then(selectResult => selectResult.rows)
 }
@@ -67,10 +67,9 @@ function findCatsByParams(searchParams) {
 
   return pool
     .query(...(catGender
-        ? [queryWithGender, [catName, catGender]]
-        : [queryWithoutGender]
+      ? [queryWithGender, [catName, catGender]]
+      : [queryWithoutGender, [catName]]
     ))
-
     .then(selectResult => selectResult.rows)
 }
 
@@ -213,7 +212,7 @@ function minusDislike(catId) {
  * @returns {*|query|void|Promise<PermissionStatus>}
  */
 function getLikesRating(limit = 10) {
-  limit = Number(limit) || 10;
+  limit = Number(limit) || 10
 
   return pool.query(`SELECT name, likes FROM cats ORDER BY likes DESC, LOWER(name) LIMIT ${limit}`)
 }
@@ -224,7 +223,7 @@ function getLikesRating(limit = 10) {
  * @returns {*|query|void|Promise<PermissionStatus>}
  */
 function getDislikesRating(limit = 10) {
-  limit = Number(limit) || 10;
+  limit = Number(limit) || 10
 
   return pool.query(`SELECT name, dislikes FROM cats ORDER BY dislikes DESC, LOWER(name) LIMIT ${limit}`)
 }
@@ -237,9 +236,9 @@ function getDislikesRating(limit = 10) {
 function getErrorText(errCode) {
   switch (errCode) {
     case '23505':
-      return `Такое значение уже существует`;
+      return `Такое значение уже существует`
     default:
-      return null;
+      return null
   }
 }
 
