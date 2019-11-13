@@ -357,6 +357,9 @@ function getCatImages(req, res) {
   catsStorage
     .getCatImages(catId)
     .then(imageFound => {
+      if (imageFound == null) {
+        return res.status(404).json(boom.notFound('cat or photos not found'))
+      }
       const images = (imageFound || []).map(obj => '/photos/' + obj.link)
 
       return res.json({ images: images })
