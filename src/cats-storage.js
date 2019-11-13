@@ -56,7 +56,7 @@ function allCats(gender) {
  * @param {*} searchParams - список параметров для поиска, переданные от клиента (имя, пол (м,ж, унисекс))
  */
 function findCatsByParams(searchParams) {
-  const catName = searchParams.name
+  const catName = '%' + searchParams.name + '%'
   const catGender = searchParams.gender
 
   logger.info(`searching cats by name: ${catName} and gender: ${searchParams.gender}`)
