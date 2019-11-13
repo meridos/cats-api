@@ -69,6 +69,10 @@ app.use('/photos', express.static('./public/photos'))
  *         type: number
  *         description: Количество лайков у имени
  *         required: true
+ *       dislikes:
+ *         type: number
+ *         description: Количество дизлайков у имени
+ *         required: true
  *
  *   Groups:
  *     type: object
