@@ -50,22 +50,23 @@ function getAllCats(req, res) {
  * @param {*} res
  */
 function searchCatsByNamePattern(req, res) {
-  const { name, limit } = req.query
+  const { name, limit = 10 } = req.query
   req.log.info(`searching for cats with name like ${name} limit ${limit}`)
 
   return validateName(name)
-    .then(() => catsStorage.findCatByNamePattern(name, Number(limit)))
+    .then(() => catsStorage.findCatByNamePattern(name))
     .then(foundCats => {
 
-      let moreResults = false;
-
-      if (foundCats.length > 10) {
-        moreResults = true;
+      if (foundCats.length <= limit) {
+        return res.json({
+          moreResults: false,
+          cats: foundCats,
+        })
       }
 
       return res.json({
-        moreResults,
-        cats: foundCats,
+        moreResults: true,
+        cats: foundCats.slice(0, limit),
       })
     })
     .catch(err =>

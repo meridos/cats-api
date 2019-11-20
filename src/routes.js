@@ -224,9 +224,14 @@ app.post('/cats/search', searchCatsByParams)
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/definitions/Cat'
+ *               type: object
+ *               properties:
+ *                 moreResults:
+ *                   type: boolean
+ *                 cats:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/definitions/Cat'
  */
 app.get('/cats/search-pattern', searchCatsByNamePattern)
 
