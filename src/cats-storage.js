@@ -67,8 +67,8 @@ function findCatsByParams(searchParams) {
 
   return pool
     .query(...(catGender
-      ? [queryWithGender, [catName, catGender]]
-      : [queryWithoutGender, [catName]]
+        ? [queryWithGender, [catName, catGender]]
+        : [queryWithoutGender, [catName]]
     ))
     .then(selectResult => selectResult.rows)
 }
@@ -176,7 +176,15 @@ function getCatImages(catId) {
  * @returns {*|query|void|Promise<PermissionStatus>}
  */
 function plusLike(catId) {
-  return pool.query('UPDATE Cats SET likes = likes + 1 WHERE id = $1', [catId])
+  return pool
+    .query('UPDATE Cats SET likes = likes + 1 WHERE id = $1 RETURNING *', [catId])
+    .then(updateResult => {
+      if (updateResult.rows.length == 0) {
+        return null
+      }
+
+      return updateResult.rows[0]
+    })
 }
 
 /**
