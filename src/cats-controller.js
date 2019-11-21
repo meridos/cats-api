@@ -50,7 +50,7 @@ function getAllCats(req, res) {
  * @param {*} res
  */
 function searchCatsByNamePattern(req, res) {
-  const { name, limit = 2 } = req.query
+  const { name, limit = 10 } = req.query
   req.log.info(`searching for cats with name like ${name} limit ${limit}`)
 
   return validateName(name)
