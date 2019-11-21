@@ -66,11 +66,11 @@ function searchCatsByNamePattern(req, res) {
       else if (foundCats.length > limit) {
         moreResults = true;
 
-      return res.json({
-        moreResults,
-        cats: foundCats.slice(0, -1),
-      })
-    } else {
+        return res.json({
+          moreResults,
+          cats: foundCats.slice(0, -1),
+        })
+      } else {
         return res.json({
           moreResults,
           cats: foundCats,
@@ -398,7 +398,10 @@ function setLike(req, res) {
   }
 
   catsStorage.plusLike(catId)
-    .then(() => {
+    .then((likeAdded) => {
+      if (likeAdded == null) {
+        return res.status(404).json(boom.notFound('cat not found'))
+      }
       res.status(200).send('OK')
     })
     .catch(err => {
