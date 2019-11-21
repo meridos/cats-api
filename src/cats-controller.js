@@ -54,7 +54,7 @@ function searchCatsByNamePattern(req, res) {
   req.log.info(`searching for cats with name like ${name} limit ${limit}`)
 
   return validateName(name)
-    .then(() => catsStorage.findCatByNamePattern(name, Number(limit + 1)))
+    .then(() => catsStorage.findCatByNamePattern(name, Number(limit + Number(1))))
     .then(foundCats => {
 
       let moreResults = false;
