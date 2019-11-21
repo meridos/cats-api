@@ -194,6 +194,13 @@ function plusLike(catId) {
  */
 function minusLike(catId) {
   return pool.query('UPDATE Cats SET likes = likes - 1 WHERE id = $1', [catId])
+    .then(updateResult => {
+      if (updateResult.rows.length == 0) {
+        return null
+      }
+
+      return updateResult.rows[0]
+    })
 }
 
 /**

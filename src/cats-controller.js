@@ -423,7 +423,10 @@ function deleteLike(req, res) {
   }
 
   catsStorage.minusLike(catId)
-    .then(() => {
+    .then((likeRemoved) => {
+      if (likeRemoved == null) {
+        return res.status(404).json(boom.notFound('cat not found'))
+      }
       res.status(200).send('OK')
     })
     .catch(err => {
