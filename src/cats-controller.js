@@ -59,7 +59,11 @@ function searchCatsByNamePattern(req, res) {
 
       let moreResults = false;
 
-      if (foundCats.length > limit) {
+      if (foundCats == null) {
+        return res.status(404).json(boom.badRequest('Совпадения не найдены'))
+      }
+
+      else if (foundCats.length > limit) {
         moreResults = true;
 
       return res.json({
