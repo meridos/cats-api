@@ -444,7 +444,10 @@ function setDislike(req, res) {
   }
 
   catsStorage.plusDislike(catId)
-    .then(() => {
+    .then((dislikeAdded) => {
+      if (dislikeAdded == null) {
+        return res.status(404).json(boom.notFound('cat not found'))
+      }
       res.status(200).send('OK')
     })
     .catch(err => {
