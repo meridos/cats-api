@@ -193,7 +193,7 @@ function plusLike(catId) {
  * @returns {*|query|void|Promise<PermissionStatus>}
  */
 function minusLike(catId) {
-  return pool.query('UPDATE Cats SET likes = likes - 1 WHERE id = $1', [catId])
+  return pool.query('UPDATE Cats SET likes = likes - 1 WHERE id = $1 RETURNING *', [catId])
     .then(updateResult => {
       if (updateResult.rows.length == 0) {
         return null
