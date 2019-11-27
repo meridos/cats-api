@@ -20,6 +20,7 @@ const {
   deleteDislike,
   getLikesRating,
   getDislikesRating,
+  removeCats
 } = require('./cats-controller')
 const { swaggerSpec } = require('./swagger-controller')
 const { serverPort } = require('./configs')
@@ -431,6 +432,29 @@ app.get('/version', getAppVersion)
  *               example: OK
  */
 app.post('/cats/:catId/like', setLike)
+
+/**
+ * @swagger
+ *
+ * /cats/{catId}/remove:
+ *   delete:
+ *     description: Удаления кота
+ *     parameters:
+ *       - in: path
+ *         name: catId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Id кота
+ *     responses:
+ *       200:
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *               example: OK
+ */
+app.delete('/cats/:catId/remove', removeCats)
 
 /**
  * @swagger
