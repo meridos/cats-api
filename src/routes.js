@@ -437,7 +437,7 @@ app.post('/cats/:catId/like', setLike)
  * @swagger
  *
  * /cats/{catId}/remove:
- *   post:
+ *   delete:
  *     description: Удаления кота
  *     parameters:
  *       - in: path

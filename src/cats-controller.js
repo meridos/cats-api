@@ -539,11 +539,14 @@ function removeCats(req, res) {
   }
 
   catsStorage.removeCats(catId)
-    .then(() => {
+    .then(removedCat => {
+      if (!removedCat) {
+        return res.status(404).json(boom.notFound('Не найден id кота'))
+      }
       res.status(200).send('OK')
     })
     .catch(err => {
-      res.status(500).json(boom.internal('Error set likes', err))
+      res.status(500).json(boom.internal('Error remove cat', err))
     })
 }
 
