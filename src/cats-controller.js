@@ -526,6 +526,27 @@ function formatName(name) {
     .join(delimiter || '');
 }
 
+/**
+ * Удаление кота
+ * @param req
+ * @param res
+ */
+function removeCats(req, res) {
+  const { catId } = req.params
+
+  if (isEmpty(catId)) {
+    return res.status(400).json(boom.badRequest('cat id is absent'))
+  }
+
+  catsStorage.removeCats(catId)
+    .then(() => {
+      res.status(200).send('OK')
+    })
+    .catch(err => {
+      res.status(500).json(boom.internal('Error set likes', err))
+    })
+}
+
 module.exports = {
   searchCatsByParams,
   searchCatsByNamePattern,
@@ -544,4 +565,5 @@ module.exports = {
   deleteDislike,
   getLikesRating,
   getDislikesRating,
+  removeCats
 }

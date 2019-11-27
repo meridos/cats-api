@@ -187,6 +187,24 @@ function plusLike(catId) {
     })
 }
 
+
+/**
+ * Удаления кота из бд
+ * @param catId
+ * @returns {*|query|void|Promise<PermissionStatus>}
+ */
+function removeCats(catId) {
+  return pool
+    .query('DELETE FROM Cats WHERE id = $1', [catId])
+    .then(removeResult => {
+      if (removeResult.rows.length == 0) {
+        return null
+      }
+
+      return removeResult.rows[0]
+    })
+}
+
 /**
  * Удаление лайка коту
  * @param catId
@@ -290,4 +308,5 @@ module.exports = {
   getLikesRating,
   getDislikesRating,
   getErrorText,
+  removeCats
 }
