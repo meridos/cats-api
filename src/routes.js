@@ -20,6 +20,7 @@ const {
   deleteDislike,
   getLikesRating,
   getDislikesRating,
+  removeCats
 } = require('./cats-controller')
 const { swaggerSpec } = require('./swagger-controller')
 const { serverPort } = require('./configs')
@@ -68,6 +69,10 @@ app.use('/photos', express.static('./public/photos'))
  *       likes:
  *         type: number
  *         description: Количество лайков у имени
+ *         required: true
+ *       dislikes:
+ *         type: number
+ *         description: Количество дизлайков у имени
  *         required: true
  *
  *   Groups:
@@ -220,9 +225,14 @@ app.post('/cats/search', searchCatsByParams)
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/definitions/Cat'
+ *               type: object
+ *               properties:
+ *                 moreResults:
+ *                   type: boolean
+ *                 cats:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/definitions/Cat'
  */
 app.get('/cats/search-pattern', searchCatsByNamePattern)
 
@@ -300,6 +310,10 @@ app.get('/cats/validation', getCatValidationRules)
  *           enum: [asc, desc]
  *         required: true
  *         description: Id кота
+ *       - in: query
+ *         name: gender
+ *         schema:
+ *           $ref: '#/definitions/GenderEnum'
  *     responses:
  *       200:
  *         description: список имен
@@ -418,6 +432,29 @@ app.get('/version', getAppVersion)
  *               example: OK
  */
 app.post('/cats/:catId/like', setLike)
+
+/**
+ * @swagger
+ *
+ * /cats/{catId}/remove:
+ *   delete:
+ *     description: Удаления кота
+ *     parameters:
+ *       - in: path
+ *         name: catId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Id кота
+ *     responses:
+ *       200:
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *               example: OK
+ */
+app.delete('/cats/:catId/remove', removeCats)
 
 /**
  * @swagger

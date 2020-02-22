@@ -41,29 +41,35 @@ function addCats(cats) {
  */
 function allCats(gender) {
   const queryAll = 'SELECT * FROM Cats ORDER BY LOWER(name)'
-  const queryWithGender = `SELECT * FROM Cats WHERE gender = '${gender}' ORDER BY LOWER(name)`
+  const queryWithGender = 'SELECT * FROM Cats WHERE gender = $1 ORDER BY LOWER(name)'
 
   return pool
-    .query(gender ? queryWithGender : queryAll)
+    .query(...(gender
+        ? [queryWithGender, [gender]]
+        : [queryAll]
+    ))
     .then(selectResult => selectResult.rows)
 }
-
 
 /**
  * Поиск котов по указанным параметрам в БД
  * @param {*} searchParams - список параметров для поиска, переданные от клиента (имя, пол (м,ж, унисекс))
  */
 function findCatsByParams(searchParams) {
-  const catName = searchParams.name
-  const genderFilter = searchParams.gender ? ` AND gender = '${searchParams.gender}'` : ''
+  const catName = '%' + searchParams.name + '%'
+  const catGender = searchParams.gender
 
   logger.info(`searching cats by name: ${catName} and gender: ${searchParams.gender}`)
 
+  const queryWithGender = 'SELECT * FROM Cats WHERE name ILIKE $1 AND gender = $2 ORDER BY LOWER(name)'
+  const queryWithoutGender = 'SELECT * FROM Cats WHERE name ILIKE $1 ORDER BY LOWER(name)'
+
+
   return pool
-    .query(
-      `SELECT * FROM Cats WHERE name ILIKE $1${genderFilter} ORDER BY LOWER(name)`,
-      [`%${catName}%`],
-    )
+    .query(...(catGender
+        ? [queryWithGender, [catName, catGender]]
+        : [queryWithoutGender, [catName]]
+    ))
     .then(selectResult => selectResult.rows)
 }
 
@@ -134,7 +140,7 @@ function findCatsValidationRules() {
  */
 function findAddingCatsValidationRules() {
   return pool
-    .query('SELECT * FROM Cats_Validations WHERE type = $1', ['add'])
+    .query('SELECT * FROM Cats_Validations WHERE type = $1 ORDER BY id', ['add'])
     .then(selectResult => selectResult.rows)
 }
 
@@ -170,7 +176,33 @@ function getCatImages(catId) {
  * @returns {*|query|void|Promise<PermissionStatus>}
  */
 function plusLike(catId) {
-  return pool.query('UPDATE Cats SET likes = likes + 1 WHERE id = $1', [catId])
+  return pool
+    .query('UPDATE Cats SET likes = likes + 1 WHERE id = $1 RETURNING *', [catId])
+    .then(updateResult => {
+      if (updateResult.rows.length == 0) {
+        return null
+      }
+
+      return updateResult.rows[0]
+    })
+}
+
+
+/**
+ * Удаления кота из бд
+ * @param catId
+ * @returns {*|query|void|Promise<PermissionStatus>}
+ */
+function removeCats(catId) {
+  return pool
+    .query('DELETE FROM Cats WHERE id = $1', [catId])
+    .then(removeResult => {
+      if (removeResult.rows.length == 0) {
+        return null
+      }
+
+      return removeResult.rows[0]
+    })
 }
 
 /**
@@ -179,7 +211,14 @@ function plusLike(catId) {
  * @returns {*|query|void|Promise<PermissionStatus>}
  */
 function minusLike(catId) {
-  return pool.query('UPDATE Cats SET likes = likes - 1 WHERE id = $1', [catId])
+  return pool.query('UPDATE Cats SET likes = likes - 1 WHERE id = $1 RETURNING *', [catId])
+    .then(updateResult => {
+      if (updateResult.rows.length == 0) {
+        return null
+      }
+
+      return updateResult.rows[0]
+    })
 }
 
 /**
@@ -188,7 +227,14 @@ function minusLike(catId) {
  * @returns {*|query|void|Promise<PermissionStatus>}
  */
 function plusDislike(catId) {
-  return pool.query('UPDATE Cats SET dislikes = dislikes + 1 WHERE id = $1', [catId])
+  return pool.query('UPDATE Cats SET dislikes = dislikes + 1 WHERE id = $1  RETURNING *', [catId])
+    .then(updateResult => {
+      if (updateResult.rows.length == 0) {
+        return null
+      }
+
+      return updateResult.rows[0]
+    })
 }
 
 /**
@@ -197,7 +243,14 @@ function plusDislike(catId) {
  * @returns {*|query|void|Promise<PermissionStatus>}
  */
 function minusDislike(catId) {
-  return pool.query('UPDATE Cats SET dislikes = dislikes - 1 WHERE id = $1', [catId])
+  return pool.query('UPDATE Cats SET dislikes = dislikes - 1 WHERE id = $1 RETURNING *', [catId])
+    .then(updateResult => {
+      if (updateResult.rows.length == 0) {
+        return null
+      }
+
+      return updateResult.rows[0]
+    })
 }
 
 /**
@@ -206,7 +259,7 @@ function minusDislike(catId) {
  * @returns {*|query|void|Promise<PermissionStatus>}
  */
 function getLikesRating(limit = 10) {
-  limit = Number(limit) || 10;
+  limit = Number(limit) || 10
 
   return pool.query(`SELECT name, likes FROM cats ORDER BY likes DESC, LOWER(name) LIMIT ${limit}`)
 }
@@ -217,7 +270,7 @@ function getLikesRating(limit = 10) {
  * @returns {*|query|void|Promise<PermissionStatus>}
  */
 function getDislikesRating(limit = 10) {
-  limit = Number(limit) || 10;
+  limit = Number(limit) || 10
 
   return pool.query(`SELECT name, dislikes FROM cats ORDER BY dislikes DESC, LOWER(name) LIMIT ${limit}`)
 }
@@ -230,9 +283,9 @@ function getDislikesRating(limit = 10) {
 function getErrorText(errCode) {
   switch (errCode) {
     case '23505':
-      return `Такое значение уже существует`;
+      return `Такое значение уже существует`
     default:
-      return null;
+      return null
   }
 }
 
@@ -255,4 +308,5 @@ module.exports = {
   getLikesRating,
   getDislikesRating,
   getErrorText,
+  removeCats
 }

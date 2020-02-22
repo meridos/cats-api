@@ -50,12 +50,33 @@ function getAllCats(req, res) {
  * @param {*} res
  */
 function searchCatsByNamePattern(req, res) {
-  const { name, limit } = req.query
+  const { name, limit = 10 } = req.query
   req.log.info(`searching for cats with name like ${name} limit ${limit}`)
 
   return validateName(name)
-    .then(() => catsStorage.findCatByNamePattern(name, Number(limit)))
-    .then(foundCats => res.json(foundCats))
+    .then(() => catsStorage.findCatByNamePattern(name, Number(limit) + 1))
+    .then(foundCats => {
+
+      let moreResults = false;
+
+      if (foundCats == null) {
+        return res.status(404).json(boom.notFound('Совпадения не найдены'))
+      }
+
+      else if (foundCats.length > limit) {
+        moreResults = true;
+
+        return res.json({
+          moreResults,
+          cats: foundCats.slice(0, -1),
+        })
+      } else {
+        return res.json({
+          moreResults,
+          cats: foundCats,
+        })
+      }
+    })
     .catch(err =>
       res.status(500).json(boom.internal('unable to find cats', err.stack || err.message))
     )
@@ -345,6 +366,9 @@ function getCatImages(req, res) {
   catsStorage
     .getCatImages(catId)
     .then(imageFound => {
+      if (imageFound == null) {
+        return res.status(404).json(boom.notFound('cat or photos not found'))
+      }
       const images = (imageFound || []).map(obj => '/photos/' + obj.link)
 
       return res.json({ images: images })
@@ -374,7 +398,10 @@ function setLike(req, res) {
   }
 
   catsStorage.plusLike(catId)
-    .then(() => {
+    .then((likeAdded) => {
+      if (likeAdded == null) {
+        return res.status(404).json(boom.notFound('cat not found'))
+      }
       res.status(200).send('OK')
     })
     .catch(err => {
@@ -396,7 +423,10 @@ function deleteLike(req, res) {
   }
 
   catsStorage.minusLike(catId)
-    .then(() => {
+    .then((likeRemoved) => {
+      if (likeRemoved == null) {
+        return res.status(404).json(boom.notFound('cat not found'))
+      }
       res.status(200).send('OK')
     })
     .catch(err => {
@@ -417,7 +447,10 @@ function setDislike(req, res) {
   }
 
   catsStorage.plusDislike(catId)
-    .then(() => {
+    .then((dislikeAdded) => {
+      if (dislikeAdded == null) {
+        return res.status(404).json(boom.notFound('cat not found'))
+      }
       res.status(200).send('OK')
     })
     .catch(err => {
@@ -441,7 +474,10 @@ function deleteDislike(req, res) {
   }
 
   catsStorage.minusDislike(catId)
-    .then(() => {
+    .then((dislikeAdded) => {
+      if (dislikeAdded == null) {
+        return res.status(404).json(boom.notFound('cat not found'))
+      }
       res.status(200).send('OK')
     })
     .catch(err => {
@@ -490,6 +526,30 @@ function formatName(name) {
     .join(delimiter || '');
 }
 
+/**
+ * Удаление кота
+ * @param req
+ * @param res
+ */
+function removeCats(req, res) {
+  const { catId } = req.params
+
+  if (isEmpty(catId)) {
+    return res.status(400).json(boom.badRequest('cat id is absent'))
+  }
+
+  catsStorage.removeCats(catId)
+    .then(removedCat => {
+      if (!removedCat) {
+        return res.status(404).json(boom.notFound('Не найден id кота'))
+      }
+      res.status(200).send('OK')
+    })
+    .catch(err => {
+      res.status(500).json(boom.internal('Error remove cat', err))
+    })
+}
+
 module.exports = {
   searchCatsByParams,
   searchCatsByNamePattern,
@@ -508,4 +568,5 @@ module.exports = {
   deleteDislike,
   getLikesRating,
   getDislikesRating,
+  removeCats
 }
